@@ -38,21 +38,6 @@ AvoNetworkCallsHandler.prototype.callInspectorWithBatchBody = function (
     return;
   }
 
-  console.log("Avo Inspector: events", events);
-
-  events.forEach(function (event) {
-    if (event.type === "sessionStarted") {
-      console.log("Avo Inspector: sending session started event.");
-    } else if (event.type === "event") {
-      console.log(
-        "Avo Inspector: sending event " +
-          event.eventName +
-          " with schema " +
-          JSON.stringify(event.eventProperties)
-      );
-    }
-  });
-
   this.sending = true;
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("POST", AvoNetworkCallsHandler.trackingEndpoint, true);

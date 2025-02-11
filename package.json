@@ -1,6 +1,6 @@
 {
     "name": "adobe-inspector-web",
-    "version": "0.1.3",
+    "version": "0.9.0",
     "description": "Send analytics tracking to Avo Inspector to observe and validate your tracking schema.",
     "dependencies": {},
     "engines": {

@@ -2,8 +2,9 @@
   "displayName": "Avo Inspector",
   "name": "avo-inspector",
   "platform": "web",
-  "version": "0.1.3",
+  "version": "0.9.0",
   "description": "Avo Inspector Observes your data schema in realtime and can alert you on your data inconsistencies.",
+  "documentationUrl": "https://github.com/avohq/adobe-inspector#readme",
   "author": {
     "name": "avo.app"
   },

@@ -61,7 +61,6 @@ class AvoInspector {
 
   extractSchema(eventProperties, shouldLogIfEnabled = true) {
     try {
-      console.log("Avo Inspector: Extracting schema from", eventProperties);
       return AvoSchemaParser.extractSchema(eventProperties);
     } catch (error) {
       console.error("Avo Inspector: Error in extractSchema.", error);
