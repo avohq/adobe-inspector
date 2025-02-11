@@ -47,16 +47,6 @@
   },
   "events": [
     {
-      "name": "watchdatalayer",
-      "displayName": "Watch Data Layer",
-      "schema": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "type": "object",
-        "properties": {}
-      },
-      "libPath": "src/lib/events/watchDataLayer.js"
-    },
-    {
       "name": "watchadobeclientdatalayer",
       "displayName": "Watch Adobe Client Data Layer",
       "libPath": "src/lib/events/watchAdobeClientDataLayer.js",
@@ -68,16 +58,6 @@
     }
   ],
   "actions": [
-    {
-      "name": "ondatalayertrigger",
-      "displayName": "on Data Layer Trigger",
-      "schema": {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "type": "object",
-        "properties": {}
-      },
-      "libPath": "src/lib/actions/onDataLayerTrigger.js"
-    },
     {
       "name": "onadobeclientdatalayertigger",
       "displayName": "on Adobe Client Data Layer Trigger",
