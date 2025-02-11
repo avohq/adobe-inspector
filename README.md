@@ -1,6 +1,6 @@
 # 📌 Avo Inspector Adobe Launch Extension
 
-**Version:** `0.9.0`  
+**Version:** `1.0.0`  
 **Author:** [Avo](https://www.avo.app)  
 **Platform:** Adobe Experience Platform Launch  
 **License:** MIT
