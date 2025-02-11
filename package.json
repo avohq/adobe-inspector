@@ -1,0 +1,14 @@
+{
+    "name": "adobe-inspector-web",
+    "version": "0.1.3",
+    "description": "Send analytics tracking to Avo Inspector to observe and validate your tracking schema.",
+    "dependencies": {},
+    "engines": {
+        "node": ">=v14.21.2"
+    },
+    "scripts": {
+        "dev": "npx @adobe/reactor-sandbox",
+        "build": "rm -rf node_modules && rm -rf .sandbox && zip -r adobe-inspector.zip ./*",
+        "upload": "npx @adobe/reactor-uploader"
+    }
+}

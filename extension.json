@@ -1,0 +1,94 @@
+{
+  "displayName": "Avo Inspector",
+  "name": "avo-inspector",
+  "platform": "web",
+  "version": "0.1.3",
+  "description": "Avo Inspector Observes your data schema in realtime and can alert you on your data inconsistencies.",
+  "author": {
+    "name": "avo.app"
+  },
+  "viewBasePath": "src/view/",
+  "configuration": {
+    "viewPath": "configuration/configuration.html",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "properties": {
+        "apiKey": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Provide the Avo Inspector API key.",
+          "minLength": 1
+        },
+        "environment": {
+          "type": "string",
+          "title": "Environment",
+          "description": "Choose the environment for Avo Inspector.",
+          "enum": [
+            "dev",
+            "staging",
+            "prod"
+          ],
+          "default": "dev"
+        },
+        "appVersion": {
+          "type": "string",
+          "title": "App Version",
+          "description": "Specify your application version.",
+          "default": "1.0.0"
+        }
+      },
+      "required": [
+        "apiKey",
+        "environment",
+        "appVersion"
+      ]
+    }
+  },
+  "events": [
+    {
+      "name": "watchdatalayer",
+      "displayName": "Watch Data Layer",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "libPath": "src/lib/events/watchDataLayer.js"
+    },
+    {
+      "name": "watchadobeclientdatalayer",
+      "displayName": "Watch Adobe Client Data Layer",
+      "libPath": "src/lib/events/watchAdobeClientDataLayer.js",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  "actions": [
+    {
+      "name": "ondatalayertrigger",
+      "displayName": "on Data Layer Trigger",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "libPath": "src/lib/actions/onDataLayerTrigger.js"
+    },
+    {
+      "name": "onadobeclientdatalayertigger",
+      "displayName": "on Adobe Client Data Layer Trigger",
+      "schema": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "libPath": "src/lib/actions/onAdobeClientDataLayerTrigger.js",
+      "viewPath": "actions/onAdobeClientDataLayerTrigger.html"
+    }
+  ],
+  "iconPath": "public/images/avoLogo.svg"
+}

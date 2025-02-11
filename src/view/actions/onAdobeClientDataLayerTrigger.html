@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Filter Configuration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            max-width: 600px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .prefix-list {
+            margin-bottom: 20px;
+        }
+
+        .prefix-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .prefix-item input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .prefix-item button {
+            padding: 5px 10px;
+            font-size: 14px;
+            color: #fff;
+            background-color: #dc3545;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .prefix-item button:hover {
+            background-color: #c82333;
+        }
+
+        .add-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .add-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Configure Event Filters</h1>
+
+    <label>Event Name Prefixes to Filter Out:</label>
+    <div id="eventNamePrefixList" class="prefix-list"></div>
+    <button type="button" class="add-button" onclick="addPrefixField('eventNamePrefixList')">Add Event Name
+        Prefix</button>
+
+    <label>Event Property Prefixes to Filter Out:</label>
+    <div id="propertyPrefixList" class="prefix-list"></div>
+    <button type="button" class="add-button" onclick="addPrefixField('propertyPrefixList')">Add Property Prefix</button>
+    <script src="https://assets.adobedtm.com/activation/reactor/extensionbridge/extensionbridge.min.js"></script>
+    <script>
+        function addPrefixField(listId, value = '') {
+            const list = document.getElementById(listId);
+            const div = document.createElement('div');
+            div.className = 'prefix-item';
+            div.innerHTML = `
+                <input type="text" value="${value}" />
+                <button type="button" onclick="removePrefixField(this)">Remove</button>
+            `;
+            list.appendChild(div);
+        }
+
+        function removePrefixField(button) {
+            button.parentElement.remove();
+        }
+        window.extensionBridge.register({
+            init: function (settings) {
+                console.log("Initializing with settings:", settings);
+                const defaultEventNamePrefixes = ['adobe.'];
+                const defaultPropertyPrefixes = ['adobe.', 'xdm.', 'queryParams.', 'timestamp', 'time'];
+
+                const eventNamePrefixes = settings.eventNamePrefixes || defaultEventNamePrefixes;
+                const propertyPrefixes = settings.propertyPrefixes || defaultPropertyPrefixes;
+
+                // Populate the UI with saved values
+                eventNamePrefixes.forEach(prefix => addPrefixField('eventNamePrefixList', prefix));
+                propertyPrefixes.forEach(prefix => addPrefixField('propertyPrefixList', prefix));
+            },
+            getSettings: function () {
+                const eventNamePrefixes = Array.from(document.querySelectorAll('#eventNamePrefixList input')).map(input => input.value.trim());
+                const propertyPrefixes = Array.from(document.querySelectorAll('#propertyPrefixList input')).map(input => input.value.trim());
+
+                return {
+                    eventNamePrefixes: eventNamePrefixes,
+                    propertyPrefixes: propertyPrefixes
+                };
+            },
+            validate: function () {
+                return true;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Extension Configuration</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      label {
+        display: block;
+        margin: 10px 0 5px;
+      }
+      input, select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #0073e6;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #005bb5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Avo Inspector Configuration</h1>
+    <form id="configuration-form">
+      <label for="apiKey">API Key:</label>
+      <input type="text" id="apiKey" name="apiKey" placeholder="Enter your API Key" required />
+
+      <label for="environment">Environment:</label>
+      <select id="environment" name="environment">
+        <option value="dev">Dev</option>
+        <option value="staging">Staging</option>
+        <option value="prod">Prod</option>
+      </select>
+
+      <label for="appVersion">App Version:</label>
+      <input type="text" id="appVersion" name="appVersion" placeholder="Enter the App Version" required />
+    </form>
+
+  <script src="https://assets.adobedtm.com/activation/reactor/extensionbridge/extensionbridge.min.js"></script>
+  <script>
+  const form = document.getElementById('configuration-form');
+  const apiKeyInput = document.getElementById('apiKey');
+  const environmentSelect = document.getElementById('environment');
+  const appVersionInput = document.getElementById('appVersion');
+
+  extensionBridge.register({
+    init: function (info) {
+      const settings = info.settings || {};
+      apiKeyInput.value = settings.apiKey || '';
+      environmentSelect.value = settings.environment || 'dev';
+      appVersionInput.value = settings.appVersion || '1.0.0';
+    },
+
+    getSettings: function () {
+      // Return settings object from form values
+      return {
+        apiKey: apiKey.value,
+        environment: environment.value,
+        appVersion: appVersion.value,
+      };
+    },
+
+    validate: function () {
+      // Validate required fields
+      return apiKey.value.trim() !== '' && appVersion.value.trim() !== '';
+    },
+  });
+</script>
+  </body>
+</html>
