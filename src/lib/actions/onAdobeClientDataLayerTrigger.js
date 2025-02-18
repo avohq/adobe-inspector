@@ -71,23 +71,22 @@ module.exports = function (settings, context) {
   console.log("eventInfo", eventInfo);
 
   // Remove eventType from properties since it's used as the event name
-  const { eventType, ...eventProperties } = eventInfo;
+  const { eventName, ...eventProperties } = eventInfo;
 
-  console.log("eventType", eventType);
   console.log("eventProperties", eventProperties);
 
   // Filter out system properties
   const filteredEventProperties = filterProductEvents(
-    eventType,
+    eventName,
     eventProperties
   );
 
   console.log("filteredEventProperties", filteredEventProperties);
 
   if (filteredEventProperties === null) {
-    console.log("Filtered properties is null, skipping event:", eventType);
+    console.log("Filtered properties is null, skipping event:", eventName);
     return;
   }
 
-  avoInspector.trackSchemaFromEvent(eventType, filteredEventProperties);
+  avoInspector.trackSchemaFromEvent(eventName, filteredEventProperties);
 };
