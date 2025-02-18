@@ -9,10 +9,10 @@
 
 ## 🚀 Overview
 
-The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validate your Adobe Client Data Layer** by sending **only data schemas** (not actual event data) to Avo Inspector. This helps you ensure data consistency and catch schema violations in real time.
+The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validate** your **Adobe Client Data Layer** by sending **only data schemas** (no personal data) to Avo Inspector. This helps you ensure data consistency and catch schema violations in real time.
 
-✅ **We do NOT send actual event data to Avo Inspector—only the structure of the data is analyzed.**  
-✅ This means your **sensitive user data remains secure** while allowing you to monitor the health of your tracking implementation.
+✅ **The integration does NOT send personal data to Avo Inspector; only the structures of the data is sent.**  
+✅ This means your **user data remains secure** while allowing you to monitor the health of your tracking implementation.
 
 ---
 
@@ -27,9 +27,9 @@ The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validat
 
 ## 📥 Installation
 
-1. **Go to Adobe Experience Platform Launch.**
-2. **Navigate to the Extensions catalog.**
-3. **Search for "Avo Inspector".**
+1. **Go to _Adobe Experience Platform Launch_.**
+2. **Navigate to the _Extensions_ catalog.**
+3. **Search for _"Avo Inspector"_.**
 4. Click **Install** and follow the setup instructions.
 
 ---
