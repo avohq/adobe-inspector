@@ -8,6 +8,7 @@
     "name": "avo.app",
     "email": "support@avo.app"
   },
+  "exchangeUrl": "https://exchange.adobe.com/apps/ec/S2S/600130/preview",
   "viewBasePath": "src/view/",
   "configuration": {
     "viewPath": "configuration/configuration.html",
