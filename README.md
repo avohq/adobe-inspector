@@ -1,6 +1,6 @@
 # 📌 Avo Inspector Adobe Launch Extension
 
-**Version:** `1.0.0`  
+**Version:** `1.0.2`  
 **Author:** [Avo](https://www.avo.app)  
 **Platform:** Adobe Experience Platform Launch  
 **License:** MIT
@@ -25,6 +25,11 @@ The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validat
 
 ---
 
+### Prerequisites
+
+- Adobe Client Data Layer Extension (Required)
+- (Avo Inspector API Key)[https://www.avo.app/docs/data-design/avo-tracking-plan/define-sources-and-destinations#api-key]
+
 ## 📥 Installation
 
 1. **Go to _Adobe Experience Platform Launch_.**
@@ -42,20 +47,20 @@ Once installed, you can configure the extension in **Adobe Launch**:
 
 These settings apply to the **Avo Inspector extension** globally across your Launch property.
 
-| Setting         | Description                                    |
-| --------------- | ---------------------------------------------- |
-| **API Key**     | Your Avo Inspector API Key for authentication. |
-| **Environment** | Defines the environment (dev, staging, prod).  |
-| **App Version** | The application version being tracked.         |
+| Setting         | Description                                                |
+| --------------- | ---------------------------------------------------------- |
+| **API Key**     | Your Avo Inspector API Key for authentication.             |
+| **Environment** | Defines the environment (dev, staging, prod).              |
+| **App Version** | The application version being tracked. (defaults to 1.0.0) |
 
 ### 🔧 Rule-Specific Configuration
 
 These settings apply to individual **rules** where the extension is used.
 
-| Setting                 | Description                                               |
-| ----------------------- | --------------------------------------------------------- |
-| **Event Name Prefixes** | Filters out events that start with specific prefixes.     |
-| **Property Prefixes**   | Filters out properties that start with specific prefixes. |
+| Setting                 | Description                                                                                     |
+| ----------------------- | ----------------------------------------------------------------------------------------------- |
+| **Event Name Prefixes** | Filters out events that start with specific prefixes.                                           |
+| **Property Prefixes**   | Filters out properties that start with specific prefixes. (only works for top level properties) |
 
 ---
 
@@ -66,13 +71,17 @@ To track schemas, you need to configure a **rule** in Adobe Launch:
 ### 1️⃣ Configure the Event
 
 - Go to **Rules** → Create a **new rule**.
-- Click **Add Event** → Select `watchAdobeClientDataLayer`.
-- Configure it to watch for relevant data layer changes.
+- Click **Add Event** → Select Adobe Client Data Layer Extension.
+- Under eventType select "Data Pushed"
+- In the settings, select "Listen to: All Events" and "Time Scope: "Future"
+- Click **Save**
+
+![Adobe Data Layer Configuration](/public/images/adobeDataLayerConfig.png)
 
 ### 2️⃣ Configure the Action
 
-- Add an **Action** → Select **Avo Inspector**.
-- Choose `onAdobeClientDataLayer` as the action type.
+- Add an **Action** → Select **Avo Inspector** extension
+- Choose `on Adobe DataLayer Push` as the action type.
 - Configure the **Rule-Specific Configuration** (Event Name Prefixes & Property Prefixes).
 
 ### 3️⃣ Save and Publish
@@ -101,30 +110,48 @@ To track schemas, you need to configure a **rule** in Adobe Launch:
 
 #### Incoming Adobe Client Data Layer Event:
 
-```json
-{
-  "eventName": "adobe.user.login",
-  "eventProperties": {
-    "xdm.userId": "12345",
-    "queryParams.source": "web",
-    "timestamp": "2024-02-11T12:34:56Z"
-  }
-}
+```js
+adobeDataLayer.push({
+  event: "signup_start",
+  platform: "Web",
+  referral: "direct",
+  user: {
+    id: 1235
+    email: "john@doe.com",
+    firstName: "John",
+    lastName: "Doe",
+    gender: "Male",
+    age: 25,
+    country: "United States",
+    city: "New York",
+  },
+});
 ```
 
 #### Filtered & Sent to Avo Inspector (Only Schema, No Data):
 
 ```json
 {
-  "eventName": "user.login",
+  "eventName": "signup_start",
   "eventProperties": {
-    "userId": "string",
-    "source": "string"
+    "platform": "string",
+    "referral": "string",
+    "user": {
+      "id": "int",
+      "email": "string",
+      "firstName": "string",
+      "lastName": "string",
+      "gender": "string",
+      "age": "int",
+      "country": "string",
+      "city": "string"
+    }
   }
 }
 ```
 
-✔️ **We remove values and only send the schema (keys and data types).**  
+✔️ **We remove values and only send the schema (keys and data types).**
+
 ✔️ **No personally identifiable information (PII) is ever sent.**
 
 ## 🔍 Troubleshooting
