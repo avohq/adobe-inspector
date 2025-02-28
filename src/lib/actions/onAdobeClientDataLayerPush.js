@@ -6,7 +6,7 @@ const AvoInspector = require("../AvoInspector");
 function filterProductEvents(eventName, eventProperties) {
   // Ignore Adobe system events
   if (eventName.startsWith("adobe.")) {
-    console.log("Skipping Adobe system event:", eventName);
+    console.log("[Avo Inspector] Skipping Adobe system event:", eventName);
     return null;
   }
 
@@ -23,26 +23,37 @@ function filterProductEvents(eventName, eventProperties) {
     ) {
       filteredProperties[key] = eventProperties[key];
     } else {
-      console.log("Skipping system property:", key);
+      console.log("[Avo Inspector] Skipping system property:", key);
     }
   }
   return filteredProperties;
 }
 
+function captureMessage(message) {
+  if (!message || !message.event) {
+    console.warn("[Avo Inspector] Skipping non-tracked event:", message.event);
+    return;
+  }
+
+  const { event: eventName, ...eventProperties } = message;
+
+  return {
+    eventName,
+    eventProperties,
+  };
+}
+
 module.exports = function (settings, context) {
-  const { pushData } = context;
+  const { message } = context;
 
-  if (!pushData || pushData.event !== "adobe.analytics.trackEvent") {
-    console.warn("Skipping non-tracked event:", pushData.event);
+  const event = captureMessage(message);
+
+  if (!event) {
+    console.warn("No event found in context", context);
     return;
   }
 
-  // Extract event properties
-  const { eventInfo } = pushData;
-  if (!eventInfo) {
-    console.warn("No eventInfo found in adobe.analytics.trackEvent.");
-    return;
-  }
+  const { eventName, eventProperties } = event;
 
   // Extract filter prefixes from settings or context
   const eventNamePrefixes = settings.eventNamePrefixes || ["adobe."];
@@ -53,8 +64,6 @@ module.exports = function (settings, context) {
     "timestamp",
     "time",
   ];
-
-  console.log("Processing Adobe Analytics Event:", eventInfo);
 
   // Send the data to Avo Inspector
   const extensionSettings = turbine.getExtensionSettings();
@@ -68,23 +77,17 @@ module.exports = function (settings, context) {
     version: appVersion,
   });
 
-  console.log("eventInfo", eventInfo);
-
-  // Remove eventType from properties since it's used as the event name
-  const { eventName, ...eventProperties } = eventInfo;
-
-  console.log("eventProperties", eventProperties);
-
   // Filter out system properties
   const filteredEventProperties = filterProductEvents(
     eventName,
     eventProperties
   );
 
-  console.log("filteredEventProperties", filteredEventProperties);
-
   if (filteredEventProperties === null) {
-    console.log("Filtered properties is null, skipping event:", eventName);
+    console.log(
+      "[Avo Inspector] Filtered properties is null, skipping event:",
+      eventName
+    );
     return;
   }
 
