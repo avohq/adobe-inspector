@@ -165,7 +165,7 @@ dataLayer.push({
   platform: "iOS",
   referral: "friend123",
   user: {
-    id: 1235
+    id: 1235,
     email: "john@doe.com",
     firstName: "John",
     lastName: "Doe",
