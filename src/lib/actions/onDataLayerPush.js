@@ -29,7 +29,7 @@ function filterProductEvents(eventName, eventProperties) {
   return filteredProperties;
 }
 
-function captureMessage(message) {
+function captureACDLMessage(message) {
   if (!message || !message.event) {
     console.warn("[Avo Inspector] Skipping non-tracked event:", message.event);
     return;
@@ -43,10 +43,32 @@ function captureMessage(message) {
   };
 }
 
+function captureGoogleDLMessage(dataLayerModel) {
+  if (!dataLayerModel || !dataLayerModel.event) {
+    console.warn(
+      "[Avo Inspector] Skipping non-tracked event:",
+      dataLayerModel.event
+    );
+    return;
+  }
+
+  const { event: eventName, ...eventProperties } = dataLayerModel;
+
+  return {
+    eventName,
+    eventProperties,
+  };
+}
 module.exports = function (settings, context) {
   const { message } = context;
 
-  const event = captureMessage(message);
+  console.log("[Avo Inspector] Context:", context);
+
+  const event = message
+    ? captureACDLMessage(message)
+    : captureGoogleDLMessage(context.event.dataLayerModel);
+
+  console.log("[Avo Inspector] Event:", event);
 
   if (!event) {
     console.warn("No event found in context", context);

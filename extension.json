@@ -49,15 +49,15 @@
   },
   "actions": [
     {
-      "name": "onadobeclientdatalayerpush",
-      "displayName": "on Adobe DataLayer Push",
+      "name": "ondatalayerpush",
+      "displayName": "on DataLayer Push",
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
         "properties": {}
       },
-      "libPath": "src/lib/actions/onAdobeClientDataLayerPush.js",
-      "viewPath": "actions/onAdobeClientDataLayerPush.html"
+      "libPath": "src/lib/actions/onDataLayerPush.js",
+      "viewPath": "actions/onDataLayerPush.html"
     }
   ],
   "iconPath": "public/images/avoLogo.svg"

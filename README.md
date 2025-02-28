@@ -66,12 +66,19 @@ These settings apply to individual **rules** where the extension is used.
 
 ## 🔗 Setting Up a Rule in Adobe Launch
 
-To track schemas, you need to configure a **rule** in Adobe Launch:
+To track schemas, you need to configure a **rule** in Adobe Launch for supported data layers:
+
+### Supported Data Layers
+
+- **Adobe Client Data Layer**
+- **Google Data Layer**
+
+Both data layers should be set to "All Events".
 
 ### 1️⃣ Configure the Event
 
 - Go to **Rules** → Create a **new rule**.
-- Click **Add Event** → Select Adobe Client Data Layer Extension.
+- Click **Add Event** → Select the appropriate data layer extension (Adobe Client Data Layer or Google Data Layer).
 - Under eventType select "Data Pushed"
 - In the settings, select "Listen to: All Events" and "Time Scope: "Future"
 - Click **Save**
@@ -81,7 +88,7 @@ To track schemas, you need to configure a **rule** in Adobe Launch:
 ### 2️⃣ Configure the Action
 
 - Add an **Action** → Select **Avo Inspector** extension
-- Choose `on Adobe DataLayer Push` as the action type.
+- Choose `Data Layer Push` as the action type.
 - Configure the **Rule-Specific Configuration** (Event Name Prefixes & Property Prefixes).
 
 ### 3️⃣ Save and Publish
@@ -103,7 +110,7 @@ To track schemas, you need to configure a **rule** in Adobe Launch:
 ### 2️⃣ Sending Schemas to Avo Inspector
 
 - Once an event passes the filter, the extension **extracts its schema** and sends it to Avo Inspector.
-- The schema is structured according to Avo’s **schema validation**.
+- The schema is structured according to Avo's **schema validation**.
 - This helps identify **tracking inconsistencies** in real time.
 
 ### 3️⃣ Example: What We Send
@@ -150,6 +157,52 @@ adobeDataLayer.push({
 }
 ```
 
+#### Incoming Google Data Layer Event:
+
+```js
+dataLayer.push({
+  event: "signup_start",
+  platform: "iOS",
+  referral: "friend123",
+  user: {
+    id: 1235
+    email: "john@doe.com",
+    firstName: "John",
+    lastName: "Doe",
+    gender: "Male",
+    age: 25,
+    country: "United States",
+    city: "New York",
+  },
+});
+```
+
+#### Filtered & Sent to Avo Inspector (Only Schema, No Data):
+
+```json
+{
+  // GTM specific properties will be included in the eventProperties - can be filtered out in the configuration
+  "eventName": "SIGNUP_START",
+  "eventProperties": {
+    "message_id": "string", // GTM specific user id
+    "message_type": "string", // GTM specific user id
+    "platform": "string",
+    "referral": "string",
+    "userId": "string", // GTM specific user id
+    "user": {
+      "id": "int",
+      "email": "string",
+      "firstName": "string",
+      "lastName": "string",
+      "gender": "string",
+      "age": "int",
+      "country": "string",
+      "city": "string"
+    }
+  }
+}
+```
+
 ✔️ **We remove values and only send the schema (keys and data types).**
 
 ✔️ **No personally identifiable information (PII) is ever sent.**
@@ -170,7 +223,7 @@ window.adobeDataLayer.push({ event: "test.event" });
 
 ✔️ Validate the **schema** in Avo Inspector.  
 ✔️ Check the **API key and environment settings**.  
-✔️ Look at **network requests** (`F12 → Network`) to see what’s being sent.
+✔️ Look at **network requests** (`F12 → Network`) to see what's being sent.
 
 ---
 
