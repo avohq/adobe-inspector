@@ -46,7 +46,7 @@ function captureMessage(message) {
 module.exports = function (settings, context) {
   const { message } = context;
 
-  const event = pushData ? capturePushData(pushData) : captureMessage(message);
+  const event = captureMessage(message);
 
   if (!event) {
     console.warn("No event found in context", context);
