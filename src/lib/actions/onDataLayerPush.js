@@ -3,10 +3,20 @@
 const AvoInspector = require("../AvoInspector");
 
 // Function to filter out unwanted events
-function filterProductEvents(eventName, eventProperties) {
+function filterProductEvents(
+  eventName,
+  eventProperties,
+  filteredEventNamePrefixes,
+  filteredPropertyPrefixes,
+  environment
+) {
   // Ignore Adobe system events
-  if (eventName.startsWith("adobe.")) {
-    console.log("[Avo Inspector] Skipping Adobe system event:", eventName);
+  if (
+    filteredEventNamePrefixes.some((prefix) => eventName.startsWith(prefix))
+  ) {
+    if (environment === "dev") {
+      console.log("[Avo Inspector] Skipping Adobe system event:", eventName);
+    }
     return null;
   }
 
@@ -15,15 +25,13 @@ function filterProductEvents(eventName, eventProperties) {
   for (const key in eventProperties) {
     if (
       eventProperties.hasOwnProperty(key) &&
-      !key.startsWith("adobe.") &&
-      !key.startsWith("xdm.") &&
-      !key.startsWith("queryParams.") &&
-      !key.startsWith("timestamp") &&
-      !key.startsWith("time")
+      !filteredPropertyPrefixes.some((prefix) => key.startsWith(prefix))
     ) {
       filteredProperties[key] = eventProperties[key];
     } else {
-      console.log("[Avo Inspector] Skipping system property:", key);
+      if (environment === "dev") {
+        console.log("[Avo Inspector] Skipping system property:", key);
+      }
     }
   }
   return filteredProperties;
@@ -45,10 +53,12 @@ function captureACDLMessage(message) {
 
 function captureGoogleDLMessage(dataLayerModel) {
   if (!dataLayerModel || !dataLayerModel.event) {
-    console.warn(
-      "[Avo Inspector] Skipping non-tracked event:",
-      dataLayerModel.event
-    );
+    if (environment === "dev") {
+      console.warn(
+        "[Avo Inspector] Skipping non-tracked event:",
+        dataLayerModel.event
+      );
+    }
     return;
   }
 
@@ -62,16 +72,28 @@ function captureGoogleDLMessage(dataLayerModel) {
 module.exports = function (settings, context) {
   const { message } = context;
 
-  console.log("[Avo Inspector] Context:", context);
+  // Send the data to Avo Inspector
+  const extensionSettings = turbine.getExtensionSettings();
+  const apiKey = extensionSettings.apiKey;
+  const environment = extensionSettings.environment || "dev";
+  const appVersion = extensionSettings.appVersion || "1.0.0";
+
+  if (environment === "dev") {
+    console.log("[Avo Inspector] Context:", context);
+  }
 
   const event = message
     ? captureACDLMessage(message)
     : captureGoogleDLMessage(context.event.dataLayerModel);
 
-  console.log("[Avo Inspector] Event:", event);
+  if (environment === "dev") {
+    console.log("[Avo Inspector] Event:", event);
+  }
 
   if (!event) {
-    console.warn("No event found in context", context);
+    if (environment === "dev") {
+      console.warn("No event found in context", context);
+    }
     return;
   }
 
@@ -87,12 +109,6 @@ module.exports = function (settings, context) {
     "time",
   ];
 
-  // Send the data to Avo Inspector
-  const extensionSettings = turbine.getExtensionSettings();
-  const apiKey = extensionSettings.apiKey;
-  const environment = extensionSettings.environment || "dev";
-  const appVersion = extensionSettings.appVersion || "1.0.0";
-
   const avoInspector = new AvoInspector({
     apiKey,
     env: environment,
@@ -102,14 +118,18 @@ module.exports = function (settings, context) {
   // Filter out system properties
   const filteredEventProperties = filterProductEvents(
     eventName,
-    eventProperties
+    eventProperties,
+    eventNamePrefixes,
+    propertyPrefixes
   );
 
   if (filteredEventProperties === null) {
-    console.log(
-      "[Avo Inspector] Filtered properties is null, skipping event:",
-      eventName
-    );
+    if (environment === "dev") {
+      console.log(
+        "[Avo Inspector] Filtered properties is null, skipping event:",
+        eventName
+      );
+    }
     return;
   }
 

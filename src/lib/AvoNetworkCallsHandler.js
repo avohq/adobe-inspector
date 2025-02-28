@@ -53,13 +53,22 @@ AvoNetworkCallsHandler.prototype.callInspectorWithBatchBody = function (
       if (response.samplingRate !== undefined) {
         self.samplingRate = response.samplingRate;
       }
+      if (this.env === "dev") {
+        console.log("Successfully sent event to Avo Inspector", events);
+      }
       onCompleted(null);
     }
   };
   xmlhttp.onerror = function () {
+    if (this.env === "dev") {
+      console.log("Error sending event to Avo Inspector", events);
+    }
     onCompleted("Request failed");
   };
   xmlhttp.ontimeout = function () {
+    if (this.env === "dev") {
+      console.log("Request timed out", events);
+    }
     onCompleted("Request timed out");
   };
   this.sending = false;
