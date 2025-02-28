@@ -1,15 +1,15 @@
-# 📌 Avo Inspector Adobe Launch Extension
+# 📌 Avo Inspector Adobe Tags Extension
 
 **Version:** `1.0.2`  
 **Author:** [Avo](https://www.avo.app)  
-**Platform:** Adobe Experience Platform Launch  
+**Platform:** Adobe Experience Platform Tags  
 **License:** MIT
 
 ---
 
 ## 🚀 Overview
 
-The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validate** your **Adobe Client Data Layer** by sending **only data schemas** (no personal data) to Avo Inspector. This helps you ensure data consistency and catch schema violations in real time.
+The **Avo Inspector Adobe Tags Extension** allows you to **monitor and validate** your **Adobe Client Data Layer** by sending **only data schemas** (no personal data) to Avo Inspector. This helps you ensure data consistency and catch schema violations in real time.
 
 ✅ **The integration does NOT send personal data to Avo Inspector; only the structures of the data is sent.**  
 ✅ This means your **user data remains secure** while allowing you to monitor the health of your tracking implementation.
@@ -32,7 +32,7 @@ The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validat
 
 ## 📥 Installation
 
-1. **Go to _Adobe Experience Platform Launch_.**
+1. **Go to _Adobe Experience Platform Tags_.**
 2. **Navigate to the _Extensions_ catalog.**
 3. **Search for _"Avo Inspector"_.**
 4. Click **Install** and follow the setup instructions.
@@ -41,11 +41,11 @@ The **Avo Inspector Adobe Launch Extension** allows you to **monitor and validat
 
 ## 🛠 Configuration
 
-Once installed, you can configure the extension in **Adobe Launch**:
+Once installed, you can configure the extension in **Adobe Tags**:
 
 ### 🔧 Extension Configuration
 
-These settings apply to the **Avo Inspector extension** globally across your Launch property.
+These settings apply to the **Avo Inspector extension** globally across your Tags property.
 
 | Setting         | Description                                                |
 | --------------- | ---------------------------------------------------------- |
@@ -64,9 +64,9 @@ These settings apply to individual **rules** where the extension is used.
 
 ---
 
-## 🔗 Setting Up a Rule in Adobe Launch
+## 🔗 Setting Up a Rule in Adobe Tags
 
-To track schemas, you need to configure a **rule** in Adobe Launch for supported data layers:
+To track schemas, you need to configure a **rule** in Adobe Tags for supported data layers:
 
 ### Supported Data Layers
 
@@ -94,7 +94,7 @@ Both data layers should be set to "All Events".
 ### 3️⃣ Save and Publish
 
 - Click **Save Rule**.
-- Publish your changes in Adobe Launch.
+- Publish your changes in Adobe Tags.
 - Once live, the extension will start **tracking schemas automatically**.
 
 ---
@@ -231,7 +231,7 @@ window.adobeDataLayer.push({ event: "test.event" });
 
 To upgrade to a newer version:
 
-1. **Go to Adobe Launch** → Extensions.
+1. **Go to Adobe Tags** → Extensions.
 2. **Find "Avo Inspector"** → Click **Upgrade**.
 3. Publish changes and **test in a development environment first**.
 
@@ -245,4 +245,4 @@ For any questions, reach out to [Avo Support](https://www.avo.app) or check our 
 
 ### 📢 Ready to Validate Your Data Schemas?
 
-🔹 Install **Avo Inspector for Adobe Launch** today and **monitor your tracking schemas in real time!** 🚀
+🔹 Install **Avo Inspector for Adobe Tags** today and **monitor your tracking schemas in real time!** 🚀
