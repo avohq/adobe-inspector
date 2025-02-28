@@ -82,9 +82,21 @@ module.exports = function (settings, context) {
     console.log("[Avo Inspector] Context:", context);
   }
 
-  const event = message
-    ? captureACDLMessage(message, environment)
-    : captureGoogleDLMessage(context.event.dataLayerModel, environment);
+  let event;
+  if (message) {
+    event = captureACDLMessage(message, environment);
+  } else {
+    if (context.event && context.event.dataLayerModel) {
+      event = captureGoogleDLMessage(context.event.dataLayerModel, environment);
+    } else {
+      if (environment === "dev") {
+        console.warn(
+          "[Avo Inspector] Missing context event or dataLayerModel, skipping event."
+        );
+      }
+      return;
+    }
+  }
 
   if (environment === "dev") {
     console.log("[Avo Inspector] Event:", event);
