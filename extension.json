@@ -2,7 +2,7 @@
   "displayName": "Avo Inspector",
   "name": "avo-inspector",
   "platform": "web",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Avo Inspector Observes your data schema in realtime and can alert you on your data inconsistencies.",
   "author": {
     "name": "avo.app",
@@ -49,15 +49,15 @@
   },
   "actions": [
     {
-      "name": "onadobeclientdatalayerpush",
-      "displayName": "on Adobe DataLayer Push",
+      "name": "ondatalayerpush",
+      "displayName": "on DataLayer Push",
       "schema": {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
         "properties": {}
       },
-      "libPath": "src/lib/actions/onAdobeClientDataLayerPush.js",
-      "viewPath": "actions/onAdobeClientDataLayerPush.html"
+      "libPath": "src/lib/actions/onDataLayerPush.js",
+      "viewPath": "actions/onDataLayerPush.html"
     }
   ],
   "iconPath": "public/images/avoLogo.svg"
