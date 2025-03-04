@@ -30,6 +30,8 @@ The **Avo Inspector Adobe Tags Extension** allows you to **monitor and validate*
 - Adobe Client Data Layer Extension (Required)
 - (Avo Inspector API Key)[https://www.avo.app/docs/data-design/avo-tracking-plan/define-sources-and-destinations#api-key]
 
+![Adobe Data Layer Configuration](/public/images/copy-inspector-api-key.png)
+
 ## 📥 Installation
 
 1. **Go to _Adobe Experience Platform Tags_.**
@@ -68,6 +70,8 @@ These settings apply to individual **rules** where the extension is used.
 
 To track schemas, you need to configure a **rule** in Adobe Tags for supported data layers:
 
+![Adobe Create Rule](/public/images/create-rule.png)
+
 ### Supported Data Layers
 
 - **Adobe Client Data Layer**
@@ -83,13 +87,15 @@ Both data layers should be set to "All Events".
 - In the settings, select "Listen to: All Events" and "Time Scope: "Future"
 - Click **Save**
 
-![Adobe Data Layer Configuration](/public/images/adobeDataLayerConfig.png)
+![Adobe Data Layer Configuration](/public/images/event-configuration.png)
 
 ### 2️⃣ Configure the Action
 
 - Add an **Action** → Select **Avo Inspector** extension
 - Choose `Data Layer Push` as the action type.
 - Configure the **Rule-Specific Configuration** (Event Name Prefixes & Property Prefixes).
+
+![Adobe Action Configuration](/public/images/action-configuration.png)
 
 ### 3️⃣ Save and Publish
 
@@ -224,6 +230,7 @@ window.adobeDataLayer.push({ event: "test.event" });
 ✔️ Validate the **schema** in Avo Inspector.  
 ✔️ Check the **API key and environment settings**.  
 ✔️ Look at **network requests** (`F12 → Network`) to see what's being sent.
+✔️ The Extension info logs to the console if the environment is set to `dev`.
 
 ---
 
