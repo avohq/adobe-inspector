@@ -14,6 +14,8 @@ The **Avo Inspector Adobe Tags Extension** allows you to **monitor and validate*
 ✅ **The integration does NOT send personal data to Avo Inspector; only the structures of the data is sent.**  
 ✅ This means your **user data remains secure** while allowing you to monitor the health of your tracking implementation.
 
+#### [Avo docucementation](https://www.avo.app/docs/inspector/connect-inspector-to-adobe-tag-extension)
+
 ---
 
 ## ✨ Features
