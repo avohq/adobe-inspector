@@ -9,6 +9,7 @@ class AvoInspector {
     this.apiKey = settings.apiKey;
     this.environment = settings.environment || "dev";
     this.version = settings.version;
+    this._shouldLog = this.environment === "dev" ? true : false;
 
     this.networkCallsHandler = new AvoNetworkCallsHandler(
       this.apiKey,
@@ -19,11 +20,9 @@ class AvoInspector {
     );
   }
 
-  static enableLogging(enable) {
-    AvoInspector._shouldLog = enable;
-  }
-
   trackSchemaFromEvent(eventName, eventProperties) {
+    console.log("shouldLog? ", this._shouldLog);
+
     try {
       const eventSchema = this.extractSchema(eventProperties, false);
       this.trackSchemaInternal(eventName, eventSchema, null, null);
@@ -37,6 +36,13 @@ class AvoInspector {
   trackSchemaInternal(eventName, eventSchema, eventId, eventHash) {
     try {
       // Directly send the event using AvoNetworkCallsHandler
+      if (this._shouldLog) {
+        console.log(
+          "Avo Inspector: Sending event schema:",
+          eventName,
+          eventSchema
+        );
+      }
       const eventBody = this.networkCallsHandler.bodyForEventSchemaCall(
         eventName,
         eventSchema,

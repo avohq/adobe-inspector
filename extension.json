@@ -2,7 +2,7 @@
   "displayName": "Avo Inspector",
   "name": "avo-inspector",
   "platform": "web",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "Avo Inspector Observes your data schema in realtime and can alert you on your data inconsistencies.",
   "author": {
     "name": "avo.app",
@@ -47,6 +47,17 @@
       ]
     }
   },
+  "events": [
+    {
+      "name": "xdmeventtoinspectorlistener",
+      "displayName": "XDM Event to Inspector Listener",
+      "libPath": "src/lib/events/XdmEventToInspectorListener.js",
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
   "actions": [
     {
       "name": "ondatalayerpush",
@@ -58,6 +69,33 @@
       },
       "libPath": "src/lib/actions/onDataLayerPush.js",
       "viewPath": "actions/onDataLayerPush.html"
+    },
+    {
+      "name": "onxdmevent",
+      "displayName": "Handle XDM Event",
+      "libPath": "src/lib/actions/onXdmEvent.js",
+      "viewPath": "actions/onXdmEvent.html",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "xdmFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Top-level XDM fields to extract."
+          },
+          "tenantId": {
+            "type": "string",
+            "description": "Tenant ID replacement for _TENANT_ID field.",
+            "default": ""
+          }
+        },
+        "required": [
+          "xdmFields",
+          "tenantId"
+        ]
+      }
     }
   ],
   "iconPath": "public/images/avoLogo.svg"

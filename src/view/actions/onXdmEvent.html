@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure XDM Extraction</title>
+    <script src="https://assets.adobedtm.com/activation/reactor/extensionbridge/extensionbridge.min.js"></script>
+    <style>
+        /* Avo-inspired Design */
+        :root {
+            --avo-pink: #FF0077;
+            --avo-light-gray: #E5E7EB;
+            --avo-dark-text: #1F2937;
+            --avo-input-border: #D1D5DB;
+            --avo-input-focus: var(--avo-pink);
+            --avo-error: #D60000;
+            --avo-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--avo-bg);
+            color: var(--avo-dark-text);
+            padding: 20px;
+            max-width: 100%;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .config-container,
+        .preview-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .preview-container {
+            background: #FAFAFA;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #333;
+            border: 1px solid var(--avo-light-gray);
+            overflow-wrap: break-word;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 15px;
+        }
+
+        .tenant-section {
+            margin-bottom: 20px;
+        }
+
+        .tenant-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .tenant-input {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--avo-dark-text);
+            border: 1px solid var(--avo-error);
+            border-radius: 6px;
+            background: #ffffff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tenant-input.valid {
+            border-color: var(--avo-input-border);
+        }
+
+        .tenant-input:focus {
+            border-color: var(--avo-input-focus);
+            box-shadow: 0 0 0 3px rgba(255, 0, 119, 0.2);
+            outline: none;
+        }
+
+        .field-list {
+            margin-bottom: 10px;
+        }
+
+        .field-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .field-input {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--avo-dark-text);
+            border: 1px solid var(--avo-input-border);
+            border-radius: 6px;
+            background: #ffffff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .field-input:focus {
+            border-color: var(--avo-input-focus);
+            box-shadow: 0 0 0 3px rgba(255, 0, 119, 0.2);
+            outline: none;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            color: var(--avo-pink);
+        }
+
+        .add-field {
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: var(--avo-pink);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            margin-top: 8px;
+            display: block;
+            text-align: center;
+        }
+
+        .add-field:disabled {
+            color: #bbb;
+            cursor: default;
+        }
+
+        .add-field:hover:not(:disabled) {
+            color: #D60062;
+        }
+
+        .json-preview {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="config-container">
+        <h2>XDM Fields Extraction</h2>
+
+        <div class="tenant-section">
+            <label class="tenant-label" for="tenantId">Tenant ID (Required)</label>
+            <input id="tenantId" class="tenant-input" type="text" placeholder="Enter your tenant ID">
+        </div>
+
+        <p>
+            Select the <strong>top-level fields</strong> from your XDM object that should be extracted and sent to the
+            Inspector.
+            You can <strong>edit existing fields</strong>, <strong>remove unused ones</strong>, or <strong>add new
+                fields</strong> as needed.
+        </p>
+
+        <div id="fieldList" class="field-list"></div>
+
+        <button id="addFieldButton" class="add-field" onclick="addNewField()">+</button>
+    </div>
+
+    <div class="preview-container">
+        <h3>Live XDM Preview</h3>
+        <pre id="jsonPreview" class="json-preview">[]</pre>
+    </div>
+
+    <script>
+        let currentXdmFields = [];
+        let tenantId = "";
+
+        function generateFieldList(settings) {
+            document.getElementById("tenantId").value = settings?.settings?.tenantId || "";
+            document.getElementById("tenantId").classList.toggle("valid", settings?.settings?.tenantId && settings?.settings?.tenantId.trim() !== "");
+
+            const fieldListDiv = document.getElementById("fieldList");
+            fieldListDiv.innerHTML = "";
+
+            currentXdmFields = settings?.settings?.xdmFields?.length ? settings.settings.xdmFields : [
+                "device",
+                "environment",
+                "implementationDetails",
+                "placeContext",
+                "timestamp",
+                "web"
+            ];
+
+            currentXdmFields.forEach(field => addFieldToUI(field));
+            updateJsonPreview();
+        }
+
+        function addFieldToUI(field) {
+            const fieldListDiv = document.getElementById("fieldList");
+            const fieldItem = document.createElement("div");
+            fieldItem.classList.add("field-item");
+
+            const fieldInput = document.createElement("input");
+            fieldInput.type = "text";
+            fieldInput.classList.add("field-input");
+            fieldInput.value = field;
+            fieldInput.addEventListener("input", updateJsonPreview);
+            fieldInput.addEventListener("input", updateFieldsFromUI);
+
+            const removeBtn = document.createElement("button");
+            removeBtn.innerHTML = "✖";
+            removeBtn.classList.add("remove-btn");
+            removeBtn.onclick = () => {
+                fieldItem.remove();
+                updateFieldsFromUI();
+                updateJsonPreview();
+            };
+
+            fieldItem.appendChild(fieldInput);
+            fieldItem.appendChild(removeBtn);
+            fieldListDiv.appendChild(fieldItem);
+        }
+
+        function addNewField() {
+            addFieldToUI("");
+            updateFieldsFromUI();
+            updateJsonPreview();
+        }
+
+        function updateFieldsFromUI() {
+            currentXdmFields = Array.from(document.querySelectorAll(".field-input"))
+                .map(input => input.value.trim())
+                .filter(Boolean);
+        }
+
+        function updateJsonPreview() {
+            tenantId = document.getElementById("tenantId").value.trim();
+            document.getElementById("tenantId").classList.toggle("valid", tenantId !== "");
+
+            document.getElementById("jsonPreview").textContent = JSON.stringify({ tenantId, xdmFields: currentXdmFields }, null, 2);
+        }
+
+        window.extensionBridge.register({
+            init: function (settings) {
+                generateFieldList(settings);
+            },
+            getSettings: function () {
+                return { tenantId: document.getElementById("tenantId").value.trim(), xdmFields: currentXdmFields };
+            },
+            validate: function () {
+                return document.getElementById("tenantId").value.trim() !== "";
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
