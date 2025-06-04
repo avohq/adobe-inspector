@@ -4,132 +4,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Filter Configuration</title>
+    <title>Configure Event Filters</title>
+    <script src="https://assets.adobedtm.com/activation/reactor/extensionbridge/extensionbridge.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            max-width: 600px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /* Avo-inspired Design */
+        :root {
+            --avo-primary: #FF0077;
+            --avo-light-gray: #E5E7EB;
+            --avo-dark-text: #1F2937;
+            --avo-input-border: #D1D5DB;
+            --avo-input-focus: var(--avo-primary);
+            --avo-bg: #ffffff;
         }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--avo-bg);
+            color: var(--avo-dark-text);
+            padding: 20px;
+            max-width: 480px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .intro-text {
+            font-size: 14px;
+            color: #4B5563;
+            margin-bottom: 16px;
+        }
+
+        .intro-text strong {
+            font-weight: 600;
+            color: var(--avo-dark-text);
+        }
+
+        .filter-container {
+            background: #FAFAFA;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--avo-light-gray);
         }
 
         label {
-            margin-bottom: 5px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 500;
             display: block;
+            margin-bottom: 8px;
         }
 
         .prefix-list {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .prefix-item {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
+            gap: 8px;
+            margin-bottom: 6px;
         }
 
-        .prefix-item input {
+        .prefix-input {
             flex: 1;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        .prefix-item button {
-            padding: 5px 10px;
+            padding: 8px 12px;
             font-size: 14px;
-            color: #fff;
-            background-color: #dc3545;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            color: var(--avo-dark-text);
+            border: 1px solid var(--avo-input-border);
+            border-radius: 6px;
+            background: #ffffff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .prefix-item button:hover {
-            background-color: #c82333;
+        .prefix-input:focus {
+            border-color: var(--avo-input-focus);
+            box-shadow: 0 0 0 3px rgba(255, 0, 119, 0.2);
+            outline: none;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #9CA3AF;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            color: var(--avo-primary);
         }
 
         .add-button {
-            padding: 10px 20px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #28a745;
             border: none;
-            border-radius: 4px;
+            background: none;
+            font-size: 20px;
+            color: var(--avo-primary);
             cursor: pointer;
-            margin-bottom: 20px;
+            transition: color 0.2s ease;
             display: block;
+            text-align: center;
+            margin-top: 8px;
         }
 
-        .add-button:hover {
-            background-color: #218838;
+        .add-button:disabled {
+            color: #bbb;
+            cursor: default;
+        }
+
+        .add-button:hover:not(:disabled) {
+            color: #D60062;
         }
     </style>
 </head>
 
 <body>
-    <h1>Configure Event Filters</h1>
+    <h2>Configure Event Filters</h2>
 
-    <label>Event Name Prefixes to Filter Out:</label>
-    <div id="eventNamePrefixList" class="prefix-list"></div>
-    <button type="button" class="add-button" onclick="addPrefixField('eventNamePrefixList')">Add Event Name
-        Prefix</button>
+    <p class="intro-text">
+        These filters allow you to <strong>exclude events and properties</strong> from being sent to the
+        <strong>Inspector</strong>.
+        Any event or property that starts with one of the prefixes listed below will be <strong>ignored</strong>.
+        <br><br>
+        This is useful for reducing <strong>noise</strong> from automatically generated data,
+        such as <strong>Google Tag Manager (GTM)</strong> and <strong>Adobe</strong> auto-generated events and
+        properties.
+    </p>
 
-    <label>Event Property Prefixes to Filter Out:</label>
-    <div id="propertyPrefixList" class="prefix-list"></div>
-    <button type="button" class="add-button" onclick="addPrefixField('propertyPrefixList')">Add Property Prefix</button>
-    <script src="https://assets.adobedtm.com/activation/reactor/extensionbridge/extensionbridge.min.js"></script>
+    <div class="filter-container">
+        <label>Event Name Prefixes to Filter Out:</label>
+        <div id="eventNamePrefixList" class="prefix-list"></div>
+        <button type="button" class="add-button" id="addEventNamePrefix">+</button>
+    </div>
+
+    <div class="filter-container">
+        <label>Event Property Prefixes to Filter Out:</label>
+        <div id="propertyPrefixList" class="prefix-list"></div>
+        <button type="button" class="add-button" id="addPropertyPrefix">+</button>
+    </div>
+
     <script>
+        const defaultEventNamePrefixes = [
+            'gtm.', 'GoogleTagManager.', 'adobe.', 'event.'
+        ];
+
+        const defaultPropertyPrefixes = [
+            'gtm.', 'GoogleTagManager.', 'event.', 'timestamp', 'time', 'xdm.', 'queryParams.'
+        ];
+
         function addPrefixField(listId, value = '') {
             const list = document.getElementById(listId);
             const div = document.createElement('div');
             div.className = 'prefix-item';
-            div.innerHTML = `
-                <input type="text" value="${value}" />
-                <button type="button" onclick="removePrefixField(this)">Remove</button>
-            `;
+
+            const input = document.createElement('input');
+            input.type = "text";
+            input.classList.add("prefix-input");
+            input.value = value;
+            input.addEventListener("input", updateSettings);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.innerHTML = "✖";
+            removeBtn.classList.add("remove-btn");
+            removeBtn.onclick = () => {
+                div.remove();
+                updateSettings();
+            };
+
+            div.appendChild(input);
+            div.appendChild(removeBtn);
             list.appendChild(div);
+
+            updateSettings();
         }
 
-        function removePrefixField(button) {
-            button.parentElement.remove();
+        function updateSettings() {
+            if (!window.extensionBridge) return;
+
+            const eventNamePrefixes = Array.from(document.querySelectorAll('#eventNamePrefixList input'))
+                .map(input => input.value.trim())
+                .filter(Boolean);
+
+            const propertyPrefixes = Array.from(document.querySelectorAll('#propertyPrefixList input'))
+                .map(input => input.value.trim())
+                .filter(Boolean);
+
+            toggleAddButtonState();
         }
+
+        function toggleAddButtonState() {
+            document.getElementById("addEventNamePrefix").disabled = hasEmptyField("#eventNamePrefixList input");
+            document.getElementById("addPropertyPrefix").disabled = hasEmptyField("#propertyPrefixList input");
+        }
+
+        function hasEmptyField(selector) {
+            return Array.from(document.querySelectorAll(selector)).some(input => input.value.trim() === "");
+        }
+
         window.extensionBridge.register({
             init: function (settings) {
-                console.log("Initializing with settings:", settings);
-                const defaultEventNamePrefixes = ['adobe.'];
-                const defaultPropertyPrefixes = ['adobe.', 'xdm.', 'queryParams.', 'timestamp', 'time'];
+                console.log("settings", settings);
+                const eventNamePrefixes = settings?.settings?.eventNamePrefixes?.length
+                    ? settings.settings.eventNamePrefixes
+                    : defaultEventNamePrefixes;
 
-                const eventNamePrefixes = settings.eventNamePrefixes || defaultEventNamePrefixes;
-                const propertyPrefixes = settings.propertyPrefixes || defaultPropertyPrefixes;
+                const propertyPrefixes = settings?.settings?.propertyPrefixes?.length
+                    ? settings.settings.propertyPrefixes
+                    : defaultPropertyPrefixes;
 
-                // Populate the UI with saved values
-                eventNamePrefixes.forEach(prefix => addPrefixField('eventNamePrefixList', prefix));
-                propertyPrefixes.forEach(prefix => addPrefixField('propertyPrefixList', prefix));
+                document.getElementById("eventNamePrefixList").innerHTML = "";
+                document.getElementById("propertyPrefixList").innerHTML = "";
+
+                eventNamePrefixes.forEach(prefix => addPrefixField("eventNamePrefixList", prefix));
+                propertyPrefixes.forEach(prefix => addPrefixField("propertyPrefixList", prefix));
+
+                toggleAddButtonState();
             },
             getSettings: function () {
-                const eventNamePrefixes = Array.from(document.querySelectorAll('#eventNamePrefixList input')).map(input => input.value.trim());
-                const propertyPrefixes = Array.from(document.querySelectorAll('#propertyPrefixList input')).map(input => input.value.trim());
-
                 return {
-                    eventNamePrefixes: eventNamePrefixes,
-                    propertyPrefixes: propertyPrefixes
+                    eventNamePrefixes: Array.from(document.querySelectorAll('#eventNamePrefixList input'))
+                        .map(input => input.value.trim())
+                        .filter(Boolean),
+                    propertyPrefixes: Array.from(document.querySelectorAll('#propertyPrefixList input'))
+                        .map(input => input.value.trim())
+                        .filter(Boolean)
                 };
             },
             validate: function () {
                 return true;
             }
+        });
+
+        document.getElementById("addEventNamePrefix").addEventListener("click", () => {
+            if (!hasEmptyField("#eventNamePrefixList input")) addPrefixField("eventNamePrefixList");
+        });
+
+        document.getElementById("addPropertyPrefix").addEventListener("click", () => {
+            if (!hasEmptyField("#propertyPrefixList input")) addPrefixField("propertyPrefixList");
         });
     </script>
 </body>
