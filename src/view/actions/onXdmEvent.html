@@ -9,12 +9,13 @@
     <style>
         /* Avo-inspired Design */
         :root {
-            --avo-pink: #FF0077;
+            --avo-primary: #FF0077;
             --avo-light-gray: #E5E7EB;
             --avo-dark-text: #1F2937;
             --avo-input-border: #D1D5DB;
-            --avo-input-focus: var(--avo-pink);
-            --avo-error: #D60000;
+            --avo-input-focus: var(--avo-primary);
+            --avo-error: #DC2626;
+            --avo-success: #059669;
             --avo-bg: #ffffff;
         }
 
@@ -23,29 +24,11 @@
             background: var(--avo-bg);
             color: var(--avo-dark-text);
             padding: 20px;
-            max-width: 100%;
+            max-width: 520px;
             margin: auto;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 20px;
-            justify-content: center;
-        }
-
-        .config-container,
-        .preview-container {
-            width: 100%;
-            max-width: 450px;
-        }
-
-        .preview-container {
-            background: #FAFAFA;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 13px;
-            color: #333;
-            border: 1px solid var(--avo-light-gray);
-            overflow-wrap: break-word;
         }
 
         h2 {
@@ -54,10 +37,24 @@
             margin-bottom: 10px;
         }
 
-        p {
+        .intro-text {
             font-size: 14px;
-            color: #6B7280;
-            margin-bottom: 15px;
+            color: #4B5563;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .intro-text strong {
+            font-weight: 600;
+            color: var(--avo-dark-text);
+        }
+
+        .config-container {
+            background: #FAFAFA;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--avo-light-gray);
+            margin-bottom: 16px;
         }
 
         .tenant-section {
@@ -80,6 +77,7 @@
             border-radius: 6px;
             background: #ffffff;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            box-sizing: border-box;
         }
 
         .tenant-input.valid {
@@ -92,8 +90,25 @@
             outline: none;
         }
 
+        .tenant-help {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        .field-section {
+            margin-top: 20px;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+
         .field-list {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .field-item {
@@ -127,89 +142,189 @@
             font-size: 16px;
             cursor: pointer;
             transition: color 0.2s ease;
+            padding: 4px;
         }
 
         .remove-btn:hover {
-            color: var(--avo-pink);
+            color: var(--avo-primary);
         }
 
-        .add-field {
+        .add-button {
             border: none;
             background: none;
             font-size: 20px;
-            color: var(--avo-pink);
+            color: var(--avo-primary);
             cursor: pointer;
             transition: color 0.2s ease;
-            margin-top: 8px;
             display: block;
             text-align: center;
+            margin-top: 8px;
+            padding: 4px;
         }
 
-        .add-field:disabled {
+        .add-button:disabled {
             color: #bbb;
             cursor: default;
         }
 
-        .add-field:hover:not(:disabled) {
+        .add-button:hover:not(:disabled) {
             color: #D60062;
         }
 
-        .json-preview {
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .validation-message {
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 6px 8px;
+            border-radius: 4px;
+        }
+
+        .validation-error {
+            background: #FEF2F2;
+            color: var(--avo-error);
+            border: 1px solid #FECACA;
+        }
+
+        .validation-success {
+            background: #F0FDF4;
+            color: var(--avo-success);
+            border: 1px solid #BBF7D0;
+        }
+
+        .examples {
+            background: #F8FAFC;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--avo-primary);
+            margin-top: 12px;
+        }
+
+        .examples h4 {
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: var(--avo-dark-text);
+        }
+
+        .examples code {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            color: #374151;
+            background: #ffffff;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .examples ul {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .examples li {
+            font-size: 12px;
+            color: #4B5563;
+            margin-bottom: 4px;
         }
     </style>
 </head>
 
 <body>
+    <h2>Configure XDM Data Extraction</h2>
+
+    <p class="intro-text">
+        Configure how <strong>XDM (Experience Data Model)</strong> events are processed and sent to
+        <strong>Avo Inspector</strong>. You'll need to specify your tenant ID and select which
+        top-level XDM fields should be extracted for schema validation.
+    </p>
 
     <div class="config-container">
-        <h2>XDM Fields Extraction</h2>
-
         <div class="tenant-section">
             <label class="tenant-label" for="tenantId">Tenant ID (Required)</label>
-            <input id="tenantId" class="tenant-input" type="text" placeholder="Enter your tenant ID">
+            <input id="tenantId" class="tenant-input" type="text" placeholder="e.g., _yourcompany">
+            <div class="tenant-help">
+                Your Adobe tenant ID, typically starts with an underscore (e.g., _yourcompany)
+            </div>
+            <div id="tenantValidation" class="validation-message" style="display: none;"></div>
         </div>
 
-        <p>
-            Select the <strong>top-level fields</strong> from your XDM object that should be extracted and sent to the
-            Inspector.
-            You can <strong>edit existing fields</strong>, <strong>remove unused ones</strong>, or <strong>add new
-                fields</strong> as needed.
-        </p>
+        <div class="examples">
+            <h4>What is a Tenant ID?</h4>
+            <ul>
+                <li>Your unique Adobe tenant identifier for custom XDM properties</li>
+                <li>Found in your XDM data structure as a top-level object key</li>
+                <li>Example: If your XDM has <code>"_yourcompany": {...}</code>, then <code>_yourcompany</code> is your
+                    tenant ID</li>
+            </ul>
 
-        <div id="fieldList" class="field-list"></div>
-
-        <button id="addFieldButton" class="add-field" onclick="addNewField()">+</button>
+            <h4>🎯 Important: Automatic Property Extraction</h4>
+            <ul>
+                <li><strong>All properties inside your tenant object are automatically extracted</strong></li>
+                <li>They are promoted to the top-level of your Inspector event</li>
+                <li>You don't need to specify tenant properties in the "XDM Fields" list below</li>
+                <li>Example: <code>{"_yourcompany": {"customProp": "value"}}</code> becomes
+                    <code>{"customProp": "value"}</code>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <div class="preview-container">
-        <h3>Live XDM Preview</h3>
-        <pre id="jsonPreview" class="json-preview">[]</pre>
+    <div class="config-container">
+        <div class="field-section">
+            <label class="section-label">XDM Fields to Extract</label>
+            <p class="intro-text">
+                Select the <strong>top-level XDM fields</strong> that should be included in your Inspector events.
+                Common fields are pre-populated, but you can add, remove, or modify them as needed.
+                <br><br>
+                <strong>Note:</strong> These are for standard XDM schema fields only. Your custom tenant properties
+                (configured above) are automatically included and don't need to be listed here.
+            </p>
+
+            <div id="fieldList" class="field-list"></div>
+            <button id="addFieldButton" class="add-button" onclick="addNewField()">+ Add Field</button>
+        </div>
+
+        <div class="examples">
+            <h4>Common XDM Fields:</h4>
+            <ul>
+                <li><code>device</code> - Device information (screen size, type, etc.)</li>
+                <li><code>environment</code> - Browser and environment details</li>
+                <li><code>web</code> - Web-specific data (page details, referrer, etc.)</li>
+                <li><code>placeContext</code> - Geographic and location data</li>
+                <li><code>timestamp</code> - Event timestamp</li>
+                <li><code>implementationDetails</code> - SDK implementation info</li>
+            </ul>
+        </div>
     </div>
 
     <script>
         let currentXdmFields = [];
         let tenantId = "";
 
+        const DEFAULT_XDM_FIELDS = [
+            "device",
+            "environment",
+            "implementationDetails",
+            "placeContext",
+            "timestamp",
+            "web"
+        ];
+
         function generateFieldList(settings) {
-            document.getElementById("tenantId").value = settings?.settings?.tenantId || "";
-            document.getElementById("tenantId").classList.toggle("valid", settings?.settings?.tenantId && settings?.settings?.tenantId.trim() !== "");
+            // Initialize tenant ID
+            const savedTenantId = settings?.settings?.tenantId || "";
+            document.getElementById("tenantId").value = savedTenantId;
+            validateTenantId(savedTenantId);
+
+            // Initialize XDM fields
+            currentXdmFields = settings?.settings?.xdmFields?.length
+                ? settings.settings.xdmFields
+                : [...DEFAULT_XDM_FIELDS];
 
             const fieldListDiv = document.getElementById("fieldList");
             fieldListDiv.innerHTML = "";
 
-            currentXdmFields = settings?.settings?.xdmFields?.length ? settings.settings.xdmFields : [
-                "device",
-                "environment",
-                "implementationDetails",
-                "placeContext",
-                "timestamp",
-                "web"
-            ];
-
             currentXdmFields.forEach(field => addFieldToUI(field));
-            updateJsonPreview();
+            updateAddButtonState();
         }
 
         function addFieldToUI(field) {
@@ -221,27 +336,36 @@
             fieldInput.type = "text";
             fieldInput.classList.add("field-input");
             fieldInput.value = field;
-            fieldInput.addEventListener("input", updateJsonPreview);
-            fieldInput.addEventListener("input", updateFieldsFromUI);
+            fieldInput.placeholder = "Enter XDM field name";
+            fieldInput.addEventListener("input", () => {
+                updateFieldsFromUI();
+                updateAddButtonState();
+            });
 
             const removeBtn = document.createElement("button");
             removeBtn.innerHTML = "✖";
             removeBtn.classList.add("remove-btn");
+            removeBtn.title = "Remove field";
             removeBtn.onclick = () => {
                 fieldItem.remove();
                 updateFieldsFromUI();
-                updateJsonPreview();
+                updateAddButtonState();
             };
 
             fieldItem.appendChild(fieldInput);
             fieldItem.appendChild(removeBtn);
             fieldListDiv.appendChild(fieldItem);
+
+            // Focus on new empty fields
+            if (!field) {
+                fieldInput.focus();
+            }
         }
 
         function addNewField() {
             addFieldToUI("");
             updateFieldsFromUI();
-            updateJsonPreview();
+            updateAddButtonState();
         }
 
         function updateFieldsFromUI() {
@@ -250,27 +374,63 @@
                 .filter(Boolean);
         }
 
-        function updateJsonPreview() {
-            tenantId = document.getElementById("tenantId").value.trim();
-            document.getElementById("tenantId").classList.toggle("valid", tenantId !== "");
-
-            document.getElementById("jsonPreview").textContent = JSON.stringify({ tenantId, xdmFields: currentXdmFields }, null, 2);
+        function updateAddButtonState() {
+            const hasEmptyField = Array.from(document.querySelectorAll(".field-input"))
+                .some(input => input.value.trim() === "");
+            document.getElementById("addFieldButton").disabled = hasEmptyField;
         }
+
+        function validateTenantId(value) {
+            const tenantInput = document.getElementById("tenantId");
+            const validationDiv = document.getElementById("tenantValidation");
+
+            if (!value || value.trim() === "") {
+                tenantInput.classList.remove("valid");
+                validationDiv.className = "validation-message validation-error";
+                validationDiv.textContent = "Tenant ID is required";
+                validationDiv.style.display = "block";
+                return false;
+            } else if (!value.startsWith("_")) {
+                tenantInput.classList.remove("valid");
+                validationDiv.className = "validation-message validation-error";
+                validationDiv.textContent = "Tenant ID should typically start with an underscore";
+                validationDiv.style.display = "block";
+                return false;
+            } else {
+                tenantInput.classList.add("valid");
+                validationDiv.className = "validation-message validation-success";
+                validationDiv.textContent = "Valid tenant ID format";
+                validationDiv.style.display = "block";
+                return true;
+            }
+        }
+
+        // Event listeners
+        document.getElementById("tenantId").addEventListener("input", (e) => {
+            tenantId = e.target.value.trim();
+            validateTenantId(tenantId);
+        });
 
         window.extensionBridge.register({
             init: function (settings) {
                 generateFieldList(settings);
             },
             getSettings: function () {
-                return { tenantId: document.getElementById("tenantId").value.trim(), xdmFields: currentXdmFields };
+                updateFieldsFromUI();
+                return {
+                    tenantId: document.getElementById("tenantId").value.trim(),
+                    xdmFields: currentXdmFields
+                };
             },
             validate: function () {
-                return document.getElementById("tenantId").value.trim() !== "";
+                const tenantIdValue = document.getElementById("tenantId").value.trim();
+                const isValidTenant = validateTenantId(tenantIdValue);
+                const hasFields = currentXdmFields.length > 0;
+
+                return isValidTenant && hasFields;
             }
         });
-
     </script>
-
 </body>
 
 </html>
