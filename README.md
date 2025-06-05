@@ -55,7 +55,7 @@ These settings apply to the **Avo Inspector extension** globally across your Tag
 
 The extension supports multiple data sources, each with its own setup guide:
 
-#### 📋 [Adobe Client Data Layer & Google Data Layer Integration](docs/Capture-AdobeDataLayer.md)
+#### [Adobe Client Data Layer & Google Data Layer Integration](docs/Capture-AdobeDataLayer.md)
 
 - Monitor `window.adobeDataLayer` and `window.dataLayer` changes
 - Filter out system-generated noise with prefix-based rules
