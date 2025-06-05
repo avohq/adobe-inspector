@@ -31,17 +31,21 @@ function convertXdmToEvent(xdmData, xdmFieldsToInclude, tenantId) {
 }
 
 module.exports = function (settings, payload) {
-  console.log("logging payload", payload);
-  console.log("Executing onXdmEvent action with payload:", payload.xdmData);
-  console.log("SETTINGS", settings);
+  if (environment === "dev") {
+    console.log("[Avo Inspector] Context:", context);
+    console.log("[Avo Inspector] logging payload", payload);
+    console.log(
+      "[Avo Inspector] Executing onXdmEvent action with payload:",
+      payload.xdmData
+    );
+    console.log("[Avo Inspector] SETTINGS", settings);
+  }
 
   // Send the data to Avo Inspector
   const extensionSettings = turbine.getExtensionSettings();
   const apiKey = extensionSettings.apiKey;
   const environment = extensionSettings.environment || "dev";
   const appVersion = extensionSettings.appVersion || "1.0.0";
-
-  console.log("DONE WITH GETTING SETTINGS FOR INSPECTOR");
 
   const avoInspector = new AvoInspector({
     apiKey,
@@ -52,7 +56,13 @@ module.exports = function (settings, payload) {
   const xdmFieldsToInclude = settings.xdmFields;
   const tenantId = settings.tenantId;
 
-  console.log("XDM FIELDS TO INCLUDE", xdmFieldsToInclude, tenantId);
+  if (environment === "dev") {
+    console.log(
+      "[Avo Inspector] XDM fields to include:",
+      xdmFieldsToInclude,
+      tenantId
+    );
+  }
 
   const event = convertXdmToEvent(
     payload.xdmData,
