@@ -21,8 +21,6 @@ function convertXdmToEvent(xdmData, xdmFieldsToInclude, tenantId) {
       }
     }
   }
-  console.log("Event name", eventName);
-  console.log("EVENT PROPERTIES", eventProperties);
 
   return {
     eventName,
