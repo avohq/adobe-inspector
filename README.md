@@ -22,7 +22,7 @@ The **Avo Inspector Adobe Tags Extension** allows you to **monitor and validate*
 
 ✔️ **Monitors multiple data sources** - Adobe Client Data Layer, Google Data Layer, and XDM schemas  
 ✔️ **Intelligent filtering** - Remove noise from system-generated events and properties  
-✔️ **Real-time schema validation** - Catch inconsistencies as they happen  
+✔️ **Near real-time schema validation** - Catch inconsistencies via dashboard monitoring  
 ✔️ **Privacy-first** - Only schema structures are sent, never personal data  
 ✔️ **Easy setup** - Simple configuration through Adobe Tags interface
 
@@ -61,11 +61,11 @@ The extension supports multiple data sources, each with its own setup guide:
 - Filter out system-generated noise with prefix-based rules
 - Real-time schema validation for traditional data layer implementations
 
-#### [XDM (Experience Data Model) Integration](docs/Capture-XDM.md)
+#### 🎯 [XDM (Experience Data Model) Integration](docs/Capture-XDM.md)
 
 - Capture XDM schemas from Adobe Experience Platform Web SDK
 - Automatic tenant property extraction and promotion
-- Real-time validation before data reaches Adobe Experience Platform
+- Near real-time validation via dashboard alongside data being sent to Adobe Experience Platform
 
 ---
 

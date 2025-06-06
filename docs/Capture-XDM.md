@@ -1,13 +1,13 @@
 # 🎯 XDM (Experience Data Model) Integration Guide
 
-The Avo Inspector extension supports **Adobe Experience Platform Web SDK** with **XDM (Experience Data Model)** schemas. This allows you to validate XDM event schemas in real-time as they're sent through the Adobe Web SDK.
+The Avo Inspector extension supports **Adobe Experience Platform Web SDK** with **XDM (Experience Data Model)** schemas. This allows you to validate XDM event schemas in near real-time as they're sent through the Adobe Web SDK.
 
 ## What is XDM Integration?
 
-- **Captures XDM events** before they're sent to Adobe Experience Platform
+- **Captures XDM events** as they're sent to Adobe Experience Platform
 - **Extracts schema structure** from XDM payloads
 - **Automatically handles tenant-specific custom properties**
-- **Validates XDM schema consistency** through Avo Inspector
+- **Validates XDM schema consistency** through Avo Inspector dashboard
 
 ---
 
@@ -49,7 +49,7 @@ if (content?.xdm) {
 
 **What this code does:**
 
-- **Intercepts XDM data** before it's sent to Adobe Experience Platform
+- **Captures XDM data** as it's being sent to Adobe Experience Platform
 - **Dispatches a custom DOM event** that the Avo Inspector can listen for
 - **Preserves original XDM data** - doesn't modify the data being sent to Adobe
 - **Logs helpful debug information** for troubleshooting
@@ -181,10 +181,10 @@ The extension processes XDM data by:
 
 ## Key Benefits of XDM Integration
 
-✅ **Real-time XDM schema validation** before data reaches Adobe Experience Platform  
+✅ **Near real-time XDM schema validation** alongside data being sent to Adobe Experience Platform  
 ✅ **Automatic tenant property extraction** - no manual configuration needed  
 ✅ **Standard XDM field filtering** - only include what you need  
-✅ **Schema consistency monitoring** across your XDM implementation  
+✅ **Schema consistency monitoring** across your XDM implementation via dashboard  
 ✅ **No PII sent** - only schema structures are transmitted  
 ✅ **Non-invasive** - doesn't modify your actual XDM data being sent to Adobe
 
