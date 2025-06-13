@@ -247,6 +247,16 @@
             <div id="tenantValidation" class="validation-message" style="display: none;"></div>
         </div>
 
+        <div class="tenant-section">
+            <label class="tenant-label" for="tenantPath">Tenant Path (Optional)</label>
+            <input id="tenantPath" class="tenant-input" type="text" placeholder="e.g., detail.xdm._tenantId">
+            <div class="tenant-help">
+                Optional path to your tenant object. If not provided, the extension will look for the tenant ID at the
+                top level.
+                Examples: 'detail.xdm._tenantId' or 'detail.data._tenantId'
+            </div>
+        </div>
+
         <div class="examples">
             <h4>What is a Tenant ID?</h4>
             <ul>
@@ -299,6 +309,7 @@
     <script>
         let currentXdmFields = [];
         let tenantId = "";
+        let tenantPath = "";
 
         const DEFAULT_XDM_FIELDS = [
             "device",
@@ -314,6 +325,10 @@
             const savedTenantId = settings?.settings?.tenantId || "";
             document.getElementById("tenantId").value = savedTenantId;
             validateTenantId(savedTenantId);
+
+            // Initialize tenant path
+            const savedTenantPath = settings?.settings?.tenantPath || "";
+            document.getElementById("tenantPath").value = savedTenantPath;
 
             // Initialize XDM fields
             currentXdmFields = settings?.settings?.xdmFields?.length
@@ -411,6 +426,10 @@
             validateTenantId(tenantId);
         });
 
+        document.getElementById("tenantPath").addEventListener("input", (e) => {
+            tenantPath = e.target.value.trim();
+        });
+
         window.extensionBridge.register({
             init: function (settings) {
                 generateFieldList(settings);
@@ -419,6 +438,7 @@
                 updateFieldsFromUI();
                 return {
                     tenantId: document.getElementById("tenantId").value.trim(),
+                    tenantPath: document.getElementById("tenantPath").value.trim(),
                     xdmFields: currentXdmFields
                 };
             },

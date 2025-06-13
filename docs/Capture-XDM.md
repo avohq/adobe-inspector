@@ -7,6 +7,7 @@ The Avo Inspector extension supports **Adobe Experience Platform Web SDK** with 
 - **Captures XDM events** as they're sent to Adobe Experience Platform
 - **Extracts schema structure** from XDM payloads
 - **Automatically handles tenant-specific custom properties**
+- **Supports flexible tenant property paths** for complex data structures
 - **Validates XDM schema consistency** through Avo Inspector dashboard
 
 ---
@@ -39,7 +40,11 @@ if (content?.xdm) {
   console.log("Dispatching to inspector listener", content);
   document.dispatchEvent(
     new CustomEvent("xdmEventToInspector", {
-      detail: { xdmData: content.xdm },
+      detail: {
+        xdmData: content.xdm,
+        xdm: content.xdm, // Include both for backward compatibility
+        data: content.data, // Include data for tenant path support
+      },
     })
   );
 } else {
@@ -52,6 +57,7 @@ if (content?.xdm) {
 - **Captures XDM data** as it's being sent to Adobe Experience Platform
 - **Dispatches a custom DOM event** that the Avo Inspector can listen for
 - **Preserves original XDM data** - doesn't modify the data being sent to Adobe
+- **Provides full event structure** for tenant path support
 - **Logs helpful debug information** for troubleshooting
 
 ### 2️⃣ Create XDM Rule in Adobe Tags
@@ -79,11 +85,21 @@ Configure how XDM data should be processed and sent to Avo Inspector:
 
 ![XDM Configuration Interface](/public/images/xdm/xdm-configuration-interface.png)
 
-#### Tenant ID Configuration:
+#### Tenant Configuration:
 
-- Enter your **Adobe tenant ID** (e.g., `_yourcompany`)
-- This is typically found in your XDM schema as a top-level namespace
-- **All properties inside your tenant object are automatically extracted** and promoted to top-level
+- **Tenant ID (Required)**: Your Adobe tenant ID, typically starts with an underscore (e.g., `_yourcompany`)
+
+  - This is used as a fallback if the tenant path doesn't yield results
+  - Found in your XDM data structure as a top-level object key
+  - Example: If your XDM has `"_yourcompany": {...}`, then `_yourcompany` is your tenant ID
+
+- **Tenant Path (Optional)**: Path to your tenant object in the event structure
+  - If provided, this path will be used first to find tenant properties
+  - If not found, falls back to using the Tenant ID
+  - Examples:
+    - `detail.xdm._tenantId` - For tenant data in XDM
+    - `detail.data._tenantId` - For tenant data in the data object
+    - `detail.xdmData._tenantId` - For tenant data in xdmData
 
 #### XDM Fields to Extract:
 
@@ -109,85 +125,6 @@ Configure how XDM data should be processed and sent to Avo Inspector:
 - `search` - Search-related data
 - `identityMap` - Identity information
 
-### 4️⃣ Save and Publish
-
-1. Click **Save Rule**
-2. **Publish your changes** in Adobe Tags
-3. **Test in development environment** first before pushing to production
-
----
-
-## How XDM Processing Works
-
-### 1️⃣ XDM Event Capture
-
-When an XDM event is triggered through the Adobe Web SDK, your beforeSend callback captures it:
-
-```javascript
-// XDM data from Adobe Web SDK
-{
-  "eventType": "web.webpagedetails.pageViews",
-  "web": {
-    "webPageDetails": {
-      "name": "Homepage",
-      "URL": "https://example.com"
-    }
-  },
-  "device": {
-    "screenHeight": 1080,
-    "screenWidth": 1920
-  },
-  "_yourcompany": {
-    "userId": "12345",
-    "userTier": "premium",
-    "campaignId": "summer2024"
-  }
-}
-```
-
-### 2️⃣ XDM Processing & Extraction
-
-The extension processes XDM data by:
-
-1. **Extracting `eventType`** as the event name
-2. **Including configured standard XDM fields** (device, web, etc.)
-3. **Automatically promoting ALL tenant properties** to top-level
-4. **Converting to Avo Inspector format**
-
-### 3️⃣ Processed Event Sent to Avo Inspector
-
-```json
-{
-  "eventName": "web.webpagedetails.pageViews",
-  "eventProperties": {
-    "web": {
-      "webPageDetails": {
-        "name": "string",
-        "URL": "string"
-      }
-    },
-    "device": {
-      "screenHeight": "int",
-      "screenWidth": "int"
-    },
-    "userId": "string", // ← Promoted from _yourcompany
-    "userTier": "string", // ← Promoted from _yourcompany
-    "campaignId": "string" // ← Promoted from _yourcompany
-  }
-}
-```
-
----
-
-## Key Benefits of XDM Integration
-
-✅ **Near real-time XDM schema validation** alongside data being sent to Adobe Experience Platform  
-✅ **Automatic tenant property extraction** - no manual configuration needed  
-✅ **Standard XDM field filtering** - only include what you need  
-✅ **Schema consistency monitoring** across your XDM implementation via dashboard  
-✅ **No PII sent** - only schema structures are transmitted  
-✅ **Non-invasive** - doesn't modify your actual XDM data being sent to Adobe
-
 ---
 
 ## XDM-Specific Troubleshooting
@@ -201,7 +138,11 @@ The extension processes XDM data by:
 if (content?.xdm) {
   document.dispatchEvent(
     new CustomEvent("xdmEventToInspector", {
-      detail: { xdmData: content.xdm },
+      detail: {
+        xdmData: content.xdm,
+        xdm: content.xdm,
+        data: content.data,
+      },
     })
   );
 }
@@ -220,7 +161,7 @@ if (content?.xdm) {
 }
 ```
 
-✔️ **Check tenant ID configuration** - verify your tenant ID matches your XDM schema namespace.
+✔️ **Check tenant configuration** - verify your tenant ID and path match your XDM schema structure.
 
 ✔️ **Look for console logs** - the extension logs XDM processing details when environment is set to `dev`:
 
@@ -249,8 +190,10 @@ if (content?.xdm) {
 
 **Issue: Tenant properties not appearing**
 
-- Solution: Verify your tenant ID configuration matches your XDM namespace exactly
-- Check: Look for your tenant namespace in the raw XDM data structure
+- Solution: Verify your tenant configuration:
+  1. Check that your tenant ID matches your XDM namespace
+  2. If using tenant path, verify the path exists in your event structure
+  3. Look for your tenant namespace in the raw XDM data structure
 
 **Issue: Missing standard XDM fields**
 
@@ -280,6 +223,8 @@ if (content?.xdm) {
           ...content.xdm,
           _yourcompany: tenantData,
         },
+        xdm: content.xdm,
+        data: content.data,
       },
     })
   );
@@ -295,7 +240,11 @@ if (content?.xdm && content.xdm.eventType?.startsWith("web.")) {
   // Only capture web events
   document.dispatchEvent(
     new CustomEvent("xdmEventToInspector", {
-      detail: { xdmData: content.xdm },
+      detail: {
+        xdmData: content.xdm,
+        xdm: content.xdm,
+        data: content.data,
+      },
     })
   );
 }
