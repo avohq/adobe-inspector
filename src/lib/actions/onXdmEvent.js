@@ -22,13 +22,13 @@ function convertXdmToEvent(
     );
   }
 
-  // First try xdmData, then fall back to xdm
-  if (event?.detail?.xdmData) {
-    xdmObject = event.detail.xdmData;
-    xdmLocation = "xdmData";
-  } else if (event?.detail?.xdm) {
+  // First try xdm, then fall back to xdmData
+  if (event?.detail?.xdm) {
     xdmObject = event.detail.xdm;
     xdmLocation = "xdm";
+  } else if (event?.detail?.xdmData) {
+    xdmObject = event.detail.xdmData;
+    xdmLocation = "xdmData";
   } else {
     xdmObject = xdmData;
   }

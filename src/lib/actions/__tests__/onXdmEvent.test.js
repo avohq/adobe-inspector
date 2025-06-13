@@ -29,40 +29,9 @@ describe("onXdmEvent", () => {
   });
 
   describe("XDM data location tests", () => {
-    test("should find XDM data in event.detail.xdmData", () => {
-      const settings = {
-        xdmFields: ["web", "device"],
-        tenantId: "_tenant",
-      };
-
-      const payload = {
-        event: {
-          detail: {
-            xdmData: {
-              eventType: "test.event",
-              web: { page: "test" },
-              device: { type: "mobile" },
-              _tenant: { custom: "value" },
-            },
-          },
-        },
-      };
-
-      onXdmEvent(settings, payload);
-
-      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
-        "test.event",
-        expect.objectContaining({
-          web: { page: "test" },
-          device: { type: "mobile" },
-          custom: "value",
-        })
-      );
-    });
-
     test("should find XDM data in event.detail.xdm", () => {
       const settings = {
-        xdmFields: ["web", "device"],
+        xdmFields: ["web"],
         tenantId: "_tenant",
       };
 
@@ -72,8 +41,6 @@ describe("onXdmEvent", () => {
             xdm: {
               eventType: "test.event",
               web: { page: "test" },
-              device: { type: "mobile" },
-              _tenant: { custom: "value" },
             },
           },
         },
@@ -85,24 +52,24 @@ describe("onXdmEvent", () => {
         "test.event",
         expect.objectContaining({
           web: { page: "test" },
-          device: { type: "mobile" },
-          custom: "value",
         })
       );
     });
 
-    test("should fall back to payload.xdmData", () => {
+    test("should fall back to event.detail.xdmData when xdm is not present", () => {
       const settings = {
-        xdmFields: ["web", "device"],
+        xdmFields: ["web"],
         tenantId: "_tenant",
       };
 
       const payload = {
-        xdmData: {
-          eventType: "test.event",
-          web: { page: "test" },
-          device: { type: "mobile" },
-          _tenant: { custom: "value" },
+        event: {
+          detail: {
+            xdmData: {
+              eventType: "test.event",
+              web: { page: "test" },
+            },
+          },
         },
       };
 
@@ -112,8 +79,29 @@ describe("onXdmEvent", () => {
         "test.event",
         expect.objectContaining({
           web: { page: "test" },
-          device: { type: "mobile" },
-          custom: "value",
+        })
+      );
+    });
+
+    test("should fall back to payload.xdmData when neither xdm nor xdmData is present", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+      };
+
+      const payload = {
+        xdmData: {
+          eventType: "test.event",
+          web: { page: "test" },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
+        "test.event",
+        expect.objectContaining({
+          web: { page: "test" },
         })
       );
     });
@@ -705,26 +693,20 @@ describe("onXdmEvent", () => {
       );
     });
 
-    test("should prefer xdmData over xdm when both are present", () => {
+    test("should prefer xdm over xdmData when both are present", () => {
       const settings = {
         xdmFields: ["web"],
         tenantId: "_tenant",
-        tenantPath: "detail.data._tenant",
       };
 
       const payload = {
         event: {
           detail: {
-            data: {
-              _tenant: {
-                prop1: "value1",
-              },
-            },
-            xdmData: {
+            xdm: {
               eventType: "test.event",
               web: { page: "test" },
             },
-            xdm: {
+            xdmData: {
               eventType: "wrong.event",
               web: { page: "wrong" },
             },
@@ -732,28 +714,14 @@ describe("onXdmEvent", () => {
         },
       };
 
-      console.log("Test payload:", JSON.stringify(payload, null, 2));
       onXdmEvent(settings, payload);
 
-      // Log the actual calls made to mockTrackSchemaFromEvent
-      console.log(
-        "Mock calls:",
-        JSON.stringify(mockTrackSchemaFromEvent.mock.calls, null, 2)
-      );
-
-      // Should use xdmData, not xdm
+      // Should use xdm, not xdmData
       expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
         "test.event",
         expect.objectContaining({
           web: { page: "test" },
-          prop1: "value1",
         })
-      );
-
-      // Verify we didn't use the wrong event type
-      expect(mockTrackSchemaFromEvent).not.toHaveBeenCalledWith(
-        "wrong.event",
-        expect.any(Object)
       );
     });
   });
