@@ -44,6 +44,10 @@ AvoNetworkCallsHandler.prototype.callInspectorWithBatchBody = function (
   xmlhttp.setRequestHeader("Content-Type", "text/plain");
   xmlhttp.send(JSON.stringify(events));
 
+  if (this.envName === "dev") {
+    console.log("Sending event to Avo Inspector", events);
+  }
+
   var self = this;
   xmlhttp.onload = function () {
     if (xmlhttp.status !== 200) {
@@ -53,20 +57,20 @@ AvoNetworkCallsHandler.prototype.callInspectorWithBatchBody = function (
       if (response.samplingRate !== undefined) {
         self.samplingRate = response.samplingRate;
       }
-      if (self.env === "dev") {
+      if (self.envName === "dev") {
         console.log("Successfully sent event to Avo Inspector", events);
       }
       onCompleted(null);
     }
   };
   xmlhttp.onerror = function () {
-    if (self.env === "dev") {
+    if (self.envName === "dev") {
       console.log("Error sending event to Avo Inspector", events);
     }
     onCompleted("Request failed");
   };
   xmlhttp.ontimeout = function () {
-    if (self.env === "dev") {
+    if (self.envName === "dev") {
       console.log("Request timed out", events);
     }
     onCompleted("Request timed out");
