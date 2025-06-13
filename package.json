@@ -9,6 +9,7 @@
     "scripts": {
         "dev": "npx @adobe/reactor-sandbox",
         "build": "rm -rf node_modules && rm -rf .sandbox && npx @adobe/reactor-packager",
-        "upload": "npx @adobe/reactor-uploader"
+        "upload": "npx @adobe/reactor-uploader",
+        "release": "npx @adobe/reactor-releaser"
     }
 }
