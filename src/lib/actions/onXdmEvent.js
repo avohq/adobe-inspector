@@ -2,14 +2,65 @@
 
 const AvoInspector = require("../AvoInspector");
 
+function validatePath(path, pathType) {
+  if (!path) {
+    return { isValid: true }; // Empty paths are valid (optional)
+  }
+
+  // Check for invalid characters
+  const invalidChars = /[^a-zA-Z0-9._]/;
+  if (invalidChars.test(path)) {
+    return {
+      isValid: false,
+      error: `Invalid ${pathType} path: contains invalid characters. Only letters, numbers, dots, and underscores are allowed.`,
+    };
+  }
+
+  // Check for proper structure
+  if (path.startsWith(".") || path.endsWith(".")) {
+    return {
+      isValid: false,
+      error: `Invalid ${pathType} path: cannot start or end with a dot.`,
+    };
+  }
+
+  // Check for empty segments or consecutive dots
+  if (
+    path.includes("..") ||
+    path.split(".").some((segment) => segment === "")
+  ) {
+    return {
+      isValid: false,
+      error: `Invalid ${pathType} path: cannot contain consecutive dots or empty segments.`,
+    };
+  }
+
+  return { isValid: true };
+}
+
 function convertXdmToEvent(
   event,
   xdmData,
   xdmFieldsToInclude,
   tenantId,
   tenantPath,
+  eventNamePath,
   environment
 ) {
+  // Validate paths
+  const tenantPathValidation = validatePath(tenantPath, "tenant");
+  const eventNamePathValidation = validatePath(eventNamePath, "event name");
+
+  if (!tenantPathValidation.isValid) {
+    console.error(`[Avo Inspector] ${tenantPathValidation.error}`);
+    return null;
+  }
+
+  if (!eventNamePathValidation.isValid) {
+    console.error(`[Avo Inspector] ${eventNamePathValidation.error}`);
+    return null;
+  }
+
   // Try to find XDM data from both possible locations
   let xdmObject = null;
   let xdmLocation = null;
@@ -47,10 +98,55 @@ function convertXdmToEvent(
   const eventProperties = {};
   let eventName = undefined;
 
+  // Try to get event name from the specified path if provided
+  if (eventNamePath) {
+    if (environment === "dev") {
+      console.log(
+        "[Avo Inspector] Looking for event name at path:",
+        eventNamePath
+      );
+    }
+
+    // Split the path and resolve it
+    const pathParts = eventNamePath.split(".");
+    let current = event;
+    for (const part of pathParts) {
+      if (current && typeof current === "object") {
+        current = current[part];
+      } else {
+        current = null;
+        break;
+      }
+    }
+
+    if (current) {
+      eventName = current;
+      if (environment === "dev") {
+        console.log(
+          "[Avo Inspector] Found event name at path:",
+          eventNamePath,
+          ":",
+          eventName
+        );
+      }
+    } else if (environment === "dev") {
+      console.log(
+        "[Avo Inspector] No event name found at path:",
+        eventNamePath
+      );
+    }
+  }
+
+  // If no event name found via path, fall back to XDM eventType
+  if (!eventName && xdmObject) {
+    eventName = xdmObject.eventType;
+    if (environment === "dev") {
+      console.log("[Avo Inspector] Using eventType from XDM:", eventName);
+    }
+  }
+
   // Process XDM data if available
   if (xdmObject) {
-    eventName = xdmObject.eventType;
-
     // Handle the standard XDM fields
     for (const key in xdmObject) {
       if (xdmFieldsToInclude.includes(key)) {
@@ -225,6 +321,7 @@ module.exports = function (settings, payload) {
   const xdmFieldsToInclude = settings.xdmFields;
   const tenantId = settings.tenantId;
   const tenantPath = settings.tenantPath; // New setting for custom path
+  const eventNamePath = settings.eventNamePath; // New setting for event name path
 
   if (environment === "dev") {
     console.log(
@@ -233,7 +330,9 @@ module.exports = function (settings, payload) {
       "Tenant ID:",
       tenantId,
       "Tenant Path:",
-      tenantPath
+      tenantPath,
+      "Event Name Path:",
+      eventNamePath
     );
   }
 
@@ -243,6 +342,7 @@ module.exports = function (settings, payload) {
     xdmFieldsToInclude,
     tenantId,
     tenantPath,
+    eventNamePath,
     environment
   );
 
@@ -258,3 +358,5 @@ module.exports = function (settings, payload) {
   }
   avoInspector.trackSchemaFromEvent(event.eventName, event.eventProperties);
 };
+
+module.exports.convertXdmToEvent = convertXdmToEvent;

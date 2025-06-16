@@ -1,4 +1,5 @@
 const onXdmEvent = require("../onXdmEvent");
+const { convertXdmToEvent } = require("../onXdmEvent");
 const AvoInspector = require("../../AvoInspector");
 
 // Mock AvoInspector
@@ -724,6 +725,38 @@ describe("onXdmEvent", () => {
         })
       );
     });
+
+    test("should fallback to event.detail.xdm if tenantPath is set to event.detail.xdmData but xdmData is undefined", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        tenantPath: "event.detail.xdmData",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            xdm: {
+              eventType: "test.event",
+              web: { page: "test" },
+              _tenant: { custom: "value" },
+            },
+            // xdmData is undefined
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      // Should fallback to extracting from xdm
+      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
+        "test.event",
+        expect.objectContaining({
+          web: { page: "test" },
+          custom: "value",
+        })
+      );
+    });
   });
 
   describe("Error handling tests", () => {
@@ -990,6 +1023,249 @@ describe("onXdmEvent", () => {
       expect(mockTrackSchemaFromEvent).not.toHaveBeenCalled();
       expect(console.warn).toHaveBeenCalledWith(
         "[Avo Inspector] No event data found to process"
+      );
+    });
+  });
+
+  describe("Event name path tests", () => {
+    test("should find event name at specified path", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        eventNamePath: "detail.data.eventName",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            data: {
+              eventName: "CUSTOM_EVENT",
+            },
+            xdm: {
+              eventType: "WRONG_EVENT",
+              web: { page: "test" },
+            },
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
+        "CUSTOM_EVENT",
+        expect.objectContaining({
+          web: { page: "test" },
+        })
+      );
+    });
+
+    test("should fall back to xdm.eventType when path not found", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        eventNamePath: "detail.data.nonexistent",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            xdm: {
+              eventType: "FALLBACK_EVENT",
+              web: { page: "test" },
+            },
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
+        "FALLBACK_EVENT",
+        expect.objectContaining({
+          web: { page: "test" },
+        })
+      );
+    });
+
+    test("should handle deeply nested event name path", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        eventNamePath: "detail.data.events.primary.name",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            data: {
+              events: {
+                primary: {
+                  name: "DEEP_EVENT",
+                },
+              },
+            },
+            xdm: {
+              eventType: "WRONG_EVENT",
+              web: { page: "test" },
+            },
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
+        "DEEP_EVENT",
+        expect.objectContaining({
+          web: { page: "test" },
+        })
+      );
+    });
+  });
+
+  describe("Path validation tests", () => {
+    test("should reject paths with invalid characters", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        tenantPath: "detail.data@_tenant",
+        eventNamePath: "detail.data#eventName",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            xdm: {
+              eventType: "test.event",
+              web: { page: "test" },
+            },
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Invalid tenant path: contains invalid characters"
+        )
+      );
+    });
+
+    test("should reject paths with leading or trailing dots", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        tenantPath: ".detail.data._tenant",
+        eventNamePath: "detail.data.eventName.",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            xdm: {
+              eventType: "test.event",
+              web: { page: "test" },
+            },
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Invalid tenant path: cannot start or end with a dot"
+        )
+      );
+    });
+
+    test("should reject paths with consecutive dots", () => {
+      const result = convertXdmToEvent(
+        {
+          detail: {
+            xdm: {
+              eventType: "test",
+              _tenant: { prop1: "value1" },
+            },
+          },
+        },
+        null,
+        ["eventType"],
+        "_tenant",
+        "detail..xdm._tenant",
+        null,
+        "dev"
+      );
+
+      expect(result).toBeNull();
+      expect(mockTrackSchemaFromEvent).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Invalid tenant path: cannot contain consecutive dots or empty segments"
+        )
+      );
+    });
+
+    test("should reject paths with empty segments", () => {
+      const result = convertXdmToEvent(
+        {
+          detail: {
+            xdm: {
+              eventType: "test",
+              _tenant: { prop1: "value1" },
+            },
+          },
+        },
+        null,
+        ["eventType"],
+        "_tenant",
+        "detail..xdm._tenant",
+        null,
+        "dev"
+      );
+
+      expect(result).toBeNull();
+      expect(mockTrackSchemaFromEvent).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Invalid tenant path: cannot contain consecutive dots or empty segments"
+        )
+      );
+    });
+
+    test("should accept valid paths", () => {
+      const settings = {
+        xdmFields: ["web"],
+        tenantId: "_tenant",
+        tenantPath: "detail.data._tenant",
+        eventNamePath: "detail.data.eventName",
+      };
+
+      const payload = {
+        event: {
+          detail: {
+            data: {
+              eventName: "test.event",
+              _tenant: { custom: "value" },
+            },
+            xdm: {
+              web: { page: "test" },
+            },
+          },
+        },
+      };
+
+      onXdmEvent(settings, payload);
+
+      expect(mockTrackSchemaFromEvent).toHaveBeenCalledWith(
+        "test.event",
+        expect.objectContaining({
+          web: { page: "test" },
+          custom: "value",
+        })
       );
     });
   });

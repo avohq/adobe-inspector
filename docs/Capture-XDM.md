@@ -1,4 +1,8 @@
-# 🎯 XDM (Experience Data Model) Integration Guide
+# XDM (Experience Data Model) Integration Guide
+
+<!-- Quick Start Callout -->
+
+> **Quick Start:** For most users, just enter your Tenant ID, select the XDM fields you want to track, and leave the other fields blank unless you have a custom setup.
 
 The Avo Inspector extension supports **Adobe Experience Platform Web SDK** with **XDM (Experience Data Model)** schemas. This allows you to validate XDM event schemas in near real-time as they're sent through the Adobe Web SDK.
 
@@ -29,13 +33,7 @@ Before setting up XDM integration, ensure you have:
 
 In your **Adobe Experience Platform Web SDK** extension configuration, add this code to the **beforeSend** callback:
 
-![Adobe Web SDK beforeSend Configuration](/public/images/xdm/websdk-before-send.png)
-
 ```javascript
-// Modify content.xdm or content.data as necessary. There is no need to wrap the
-// code in a function or return a value. For example:
-// content.xdm.web.webPageDetails.name = "Checkout";
-
 if (content?.xdm) {
   console.log("Dispatching to inspector listener", content);
   document.dispatchEvent(
@@ -64,8 +62,6 @@ if (content?.xdm) {
 
 Create a new rule specifically for XDM event processing:
 
-![XDM Rule Configuration](/public/images/xdm/xdm-rule-setup.png)
-
 #### Event Configuration:
 
 1. Go to **Rules** → Create a **new rule** (e.g., "XDM to Avo Inspector")
@@ -81,25 +77,49 @@ Create a new rule specifically for XDM event processing:
 
 ### 3️⃣ Configure XDM Data Extraction
 
-Configure how XDM data should be processed and sent to Avo Inspector:
-
-![XDM Configuration Interface](/public/images/xdm/xdm-configuration-interface.png)
-
 #### Tenant Configuration:
 
-- **Tenant ID (Required)**: Your Adobe tenant ID, typically starts with an underscore (e.g., `_yourcompany`)
+- **Tenant ID (Required):** Your Adobe tenant ID, typically starts with an underscore (e.g., `_yourcompany`)
 
   - This is used as a fallback if the tenant path doesn't yield results
-  - Found in your XDM data structure as a top-level object key
+  - Found in your XDM data structure as a top-level key
   - Example: If your XDM has `"_yourcompany": {...}`, then `_yourcompany` is your tenant ID
 
-- **Tenant Path (Optional)**: Path to your tenant object in the event structure
+- **Tenant Path (Optional):** Path to your tenant object in the event structure
+
   - If provided, this path will be used first to find tenant properties
   - If not found, falls back to using the Tenant ID
-  - Examples:
-    - `detail.xdm._tenantId` - For tenant data in XDM
-    - `detail.data._tenantId` - For tenant data in the data object
-    - `detail.xdmData._tenantId` - For tenant data in xdmData
+  - **Paths should start from the event object, e.g., `event.detail.data._tenant` or `event.detail.xdm._tenant`**
+  - **Most users can leave this blank unless you have a custom setup**
+
+- **Event Name Path (Optional):** Path to the event name in the event object
+  - If provided, this path will be used to find the event name
+  - If not found, falls back to using `eventType` in the XDM object
+  - **Paths should start from the event object, e.g., `event.detail.data.eventName`**
+  - **Most users can leave this blank unless you have a custom setup**
+
+#### How to Write Your Path
+
+A path lets you point to a specific property in your event data using dot notation (e.g., `event.detail.data._tenant`).
+
+- The path should start from the event object, e.g. `event.detail.xdm` or `event.detail.data`
+- For tenant properties, use e.g. `event.detail.data._tenant`
+- For XDM fields, use e.g. `event.detail.xdm.web`
+
+**Example event payload:**
+
+```js
+{
+  event: {
+    detail: {
+      xdm: { ... },   // Standard XDM data
+      data: { ... }   // Custom data (for tenantPath, etc.)
+    }
+  }
+}
+```
+
+For example, to access a property inside `data`, use: `event.detail.data._tenant`
 
 #### XDM Fields to Extract:
 
