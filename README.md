@@ -1,6 +1,6 @@
 # 📌 Avo Inspector Adobe Tags Extension
 
-**Version:** `1.2.1yar`  
+**Version:** `1.2.1`  
 **Author:** [Avo](https://www.avo.app)  
 **Platform:** Adobe Experience Platform Tags  
 **License:** MIT
