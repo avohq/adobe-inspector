@@ -88,10 +88,25 @@
             border-color: var(--avo-input-border);
         }
 
+        .tenant-input.warning {
+            border-color: #f59e42;
+        }
+
         .tenant-input:focus {
-            border-color: var(--avo-input-focus);
-            box-shadow: 0 0 0 3px rgba(255, 0, 119, 0.2);
+            border-color: inherit;
+            box-shadow: none;
             outline: none;
+        }
+
+        .tenant-input.invalid:focus {
+            border-color: var(--avo-error);
+            box-shadow: none;
+        }
+
+        .tenant-input.valid:focus,
+        .tenant-input.warning:focus {
+            border-color: inherit;
+            box-shadow: none;
         }
 
         .tenant-help {
@@ -192,6 +207,12 @@
             background: #F0FDF4;
             color: var(--avo-success);
             border: 1px solid #BBF7D0;
+        }
+
+        .validation-warning {
+            background: #FFF7ED;
+            color: #b45309;
+            border: 1px solid #f59e42;
         }
 
         .examples {
@@ -593,21 +614,21 @@
             const validationDiv = document.getElementById("tenantValidation");
 
             if (!value || value.trim() === "") {
-                tenantInput.classList.remove("valid");
+                tenantInput.classList.remove("valid", "warning");
                 tenantInput.classList.add("invalid");
                 validationDiv.className = "validation-message validation-error";
                 validationDiv.textContent = "Tenant ID is required";
                 validationDiv.style.display = "block";
                 return false;
             } else if (!value.startsWith("_")) {
-                tenantInput.classList.remove("valid");
-                tenantInput.classList.add("invalid");
-                validationDiv.className = "validation-message validation-error";
-                validationDiv.textContent = "Tenant ID should typically start with an underscore";
+                tenantInput.classList.remove("valid", "invalid");
+                tenantInput.classList.add("warning");
+                validationDiv.className = "validation-message validation-warning";
+                validationDiv.textContent = "Warning: Tenant ID usually starts with an underscore (e.g., _yourcompany), but this is not required.";
                 validationDiv.style.display = "block";
-                return false;
+                return true;
             } else {
-                tenantInput.classList.remove("invalid");
+                tenantInput.classList.remove("invalid", "warning");
                 tenantInput.classList.add("valid");
                 validationDiv.className = "validation-message validation-success";
                 validationDiv.textContent = "Valid tenant ID format";
@@ -615,6 +636,11 @@
                 return true;
             }
         }
+
+        // Add real-time validation for Tenant ID input
+        document.getElementById("tenantId").addEventListener("input", (e) => {
+            validateTenantId(e.target.value);
+        });
 
         // Path validation (matches backend)
         function validatePath(path, pathType) {
