@@ -1,6 +1,6 @@
 {
     "name": "adobe-inspector-web",
-    "version": "1.2.0",
+    "version": "1.2.2",
     "description": "Send analytics tracking to Avo Inspector to observe and validate your tracking schema.",
     "dependencies": {},
     "engines": {
@@ -10,6 +10,11 @@
         "dev": "npx @adobe/reactor-sandbox",
         "build": "rm -rf node_modules && rm -rf .sandbox && npx @adobe/reactor-packager",
         "upload": "npx @adobe/reactor-uploader",
-        "release": "npx @adobe/reactor-releaser"
+        "release": "npx @adobe/reactor-releaser",
+        "test": "jest",
+        "test:watch": "jest --watch"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0"
     }
 }

@@ -2,7 +2,7 @@
   "displayName": "Avo Inspector",
   "name": "avo-inspector",
   "platform": "web",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Avo Inspector Observes your data schema in realtime and can alert you on your data inconsistencies.",
   "author": {
     "name": "avo.app",
@@ -88,6 +88,11 @@
           "tenantId": {
             "type": "string",
             "description": "Tenant ID replacement for _TENANT_ID field.",
+            "default": ""
+          },
+          "tenantPath": {
+            "type": "string",
+            "description": "Optional path to tenant object (e.g., 'detail.xdm._tenantId' or 'detail.data._tenantId'). If not provided, falls back to using tenantId.",
             "default": ""
           }
         },

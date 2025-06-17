@@ -1,6 +1,6 @@
 # 📌 Avo Inspector Adobe Tags Extension
 
-**Version:** `1.2.0`  
+**Version:** `1.2.2`  
 **Author:** [Avo](https://www.avo.app)  
 **Platform:** Adobe Experience Platform Tags  
 **License:** MIT
@@ -65,6 +65,9 @@ The extension supports multiple data sources, each with its own setup guide:
 
 - Capture XDM schemas from Adobe Experience Platform Web SDK
 - Automatic tenant property extraction and promotion
+- **Supports advanced path configuration for tenant and event name properties**
+- UI now guides you to use full paths like `event.detail.data._tenant` or `event.detail.xdm.web`
+- These path fields are optional—most users can leave them blank unless you have a custom setup
 - Near real-time validation via dashboard alongside data being sent to Adobe Experience Platform
 
 ---

@@ -73,21 +73,40 @@
             padding: 8px 12px;
             font-size: 14px;
             color: var(--avo-dark-text);
-            border: 1px solid var(--avo-error);
+            border: 1px solid var(--avo-input-border);
             border-radius: 6px;
             background: #ffffff;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             box-sizing: border-box;
         }
 
+        .tenant-input.invalid {
+            border-color: var(--avo-error);
+        }
+
         .tenant-input.valid {
             border-color: var(--avo-input-border);
         }
 
+        .tenant-input.warning {
+            border-color: #f59e42;
+        }
+
         .tenant-input:focus {
-            border-color: var(--avo-input-focus);
-            box-shadow: 0 0 0 3px rgba(255, 0, 119, 0.2);
+            border-color: inherit;
+            box-shadow: none;
             outline: none;
+        }
+
+        .tenant-input.invalid:focus {
+            border-color: var(--avo-error);
+            box-shadow: none;
+        }
+
+        .tenant-input.valid:focus,
+        .tenant-input.warning:focus {
+            border-color: inherit;
+            box-shadow: none;
         }
 
         .tenant-help {
@@ -190,6 +209,12 @@
             border: 1px solid #BBF7D0;
         }
 
+        .validation-warning {
+            background: #FFF7ED;
+            color: #b45309;
+            border: 1px solid #f59e42;
+        }
+
         .examples {
             background: #F8FAFC;
             padding: 12px;
@@ -225,10 +250,120 @@
             color: #4B5563;
             margin-bottom: 4px;
         }
+
+        .path-section {
+            margin-bottom: 18px;
+        }
+
+        .path-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid var(--avo-input-border);
+            border-radius: 6px;
+            padding: 0 8px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .path-input-wrapper:focus-within {
+            border-color: var(--avo-input-border);
+            box-shadow: 0 0 0 2px rgba(31, 41, 55, 0.06);
+            /* subtle gray highlight */
+        }
+
+        .path-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            padding: 10px 6px;
+            background: transparent;
+            color: var(--avo-dark-text);
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #bbb;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 4px;
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .clear-btn:hover {
+            color: var(--avo-primary);
+        }
+
+        .info-icon {
+            margin-left: 6px;
+            position: relative;
+            display: none;
+            align-items: center;
+            cursor: pointer;
+            color: #FF0077;
+        }
+
+        .info-icon svg {
+            vertical-align: middle;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 120%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #1F2937;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            z-index: 10;
+            min-width: 220px;
+            max-width: 320px;
+            white-space: pre-line;
+        }
+
+        .info-icon:focus .tooltip,
+        .info-icon:hover .tooltip {
+            display: block;
+        }
+
+        .path-info {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .path-info ul {
+            margin: 0 0 8px 18px;
+            padding: 0;
+            font-size: 13px;
+        }
+
+        .payload-example {
+            margin-top: 4px;
+        }
+
+        .payload-example pre {
+            margin: 0;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Quick Start Callout -->
+    <div class="config-container" style="background: #F0FDF4; border-left: 4px solid #059669; margin-bottom: 0;">
+        <strong>Quick Start:</strong> For most users, just enter your Tenant ID, select the XDM fields you want to
+        track, and leave the other fields blank unless you have a custom setup.
+    </div>
+
     <h2>Configure XDM Data Extraction</h2>
 
     <p class="intro-text">
@@ -242,9 +377,92 @@
             <label class="tenant-label" for="tenantId">Tenant ID (Required)</label>
             <input id="tenantId" class="tenant-input" type="text" placeholder="e.g., _yourcompany">
             <div class="tenant-help">
-                Your Adobe tenant ID, typically starts with an underscore (e.g., _yourcompany)
+                Your Adobe tenant ID, typically starts with an underscore (e.g., _yourcompany).<br>
+                <strong>Where to find it?</strong> It appears as a top-level key in your XDM schema, or ask your Adobe
+                administrator.<br>
+                <strong>Why does it matter?</strong> This ID is used to extract your custom properties for validation
+                and tracking.
             </div>
             <div id="tenantValidation" class="validation-message" style="display: none;"></div>
+        </div>
+
+        <!-- What is a Path? Explanation -->
+        <div class="config-container" style="background: #F8FAFC; border-left: 4px solid #FF0077; margin-bottom: 0;">
+            <strong>What is a Path?</strong><br>
+            A path lets you point to a specific property in your event data using dot notation (e.g.,
+            <code>event.detail.data._tenant</code>).<br>
+            <strong>When should I use this?</strong> Only if your tenant properties or event name are not in the
+            standard location. For most setups, you can leave this blank.
+        </div>
+
+        <!-- Info section for path fields -->
+        <div class="config-container" style="margin-bottom: 0;">
+            <div class="path-info">
+                <strong>How to write your path:</strong>
+                <ul>
+                    <li>The path should start from the event object, e.g. <code>event.detail.xdm</code> or
+                        <code>event.detail.data</code>
+                    </li>
+                    <li>For tenant properties, use e.g. <code>event.detail.data._tenant</code></li>
+                    <li>For XDM fields, use e.g. <code>event.detail.xdm.web</code></li>
+                </ul>
+                <div class="payload-example">
+                    <div style="font-size:13px; color:#6B7280; margin-bottom:2px;">Example event payload:</div>
+                    <pre
+                        style="background:#F8FAFC; border-radius:6px; border:1px solid #E5E7EB; padding:10px; font-size:12px; overflow-x:auto;">
+{
+  event: {
+    detail: {
+      xdm: { ... },   // Standard XDM data
+      data: { ... }   // Custom data (for tenantPath, etc.)
+    }
+  }
+}
+                    </pre>
+                    <div style="font-size:13px; color:#6B7280; margin-top:2px;">
+                        For example, to access a property inside <code>data</code>, use:
+                        <code>event.detail.data._tenant</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="path-section">
+            <label class="tenant-label" for="tenantPath">Tenant Path (Optional)</label>
+            <div class="path-input-wrapper">
+                <input id="tenantPath" class="path-input" type="text" placeholder="e.g., event.detail.data._tenant"
+                    aria-label="Tenant Path">
+                <button type="button" class="clear-btn" id="clearTenantPath" title="Clear"
+                    style="display:none;">×</button>
+                <span class="info-icon" tabindex="0" aria-label="What is a path?">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="#FF0077" stroke-width="2" />
+                        <path d="M12 8v4m0 4h.01" stroke="#FF0077" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <span class="tooltip">A dot-separated path to the tenant object in your event, e.g.,
+                        <code>event.detail.data._tenant</code></span>
+                </span>
+            </div>
+            <coral-hint>Path to tenant properties in the event object</coral-hint>
+        </div>
+
+        <div class="path-section">
+            <label class="tenant-label" for="eventNamePath">Event Name Path (Optional)</label>
+            <div class="path-input-wrapper">
+                <input id="eventNamePath" class="path-input" type="text" placeholder="e.g., event.detail.data.eventName"
+                    aria-label="Event Name Path">
+                <button type="button" class="clear-btn" id="clearEventNamePath" title="Clear"
+                    style="display:none;">×</button>
+                <span class="info-icon" tabindex="0" aria-label="What is a path?">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="#FF0077" stroke-width="2" />
+                        <path d="M12 8v4m0 4h.01" stroke="#FF0077" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <span class="tooltip">A dot-separated path to the event name in your event, e.g.,
+                        <code>event.detail.data.eventName</code></span>
+                </span>
+            </div>
+            <coral-hint>Path to event name in the event object. If not provided, will use xdm.eventType</coral-hint>
         </div>
 
         <div class="examples">
@@ -256,7 +474,7 @@
                     tenant ID</li>
             </ul>
 
-            <h4>🎯 Important: Automatic Property Extraction</h4>
+            <h4>Important: Automatic Property Extraction</h4>
             <ul>
                 <li><strong>All properties inside your tenant object are automatically extracted</strong></li>
                 <li>They are promoted to the top-level of your Inspector event</li>
@@ -272,9 +490,10 @@
         <div class="field-section">
             <label class="section-label">XDM Fields to Extract</label>
             <p class="intro-text">
-                Select the <strong>top-level XDM fields</strong> that should be included in your Inspector events.
-                Common fields are pre-populated, but you can add, remove, or modify them as needed.
-                <br><br>
+                Select the <strong>top-level XDM fields</strong> (fields directly under <code>event.detail.xdm</code>)
+                that should be included in your Inspector events.<br>
+                <strong>Why extract these?</strong> These fields are used for schema validation in Avo Inspector. Only
+                include fields you want to track or validate.<br>
                 <strong>Note:</strong> These are for standard XDM schema fields only. Your custom tenant properties
                 (configured above) are automatically included and don't need to be listed here.
             </p>
@@ -299,6 +518,8 @@
     <script>
         let currentXdmFields = [];
         let tenantId = "";
+        let tenantPath = "";
+        let eventNamePath = "";
 
         const DEFAULT_XDM_FIELDS = [
             "device",
@@ -314,6 +535,14 @@
             const savedTenantId = settings?.settings?.tenantId || "";
             document.getElementById("tenantId").value = savedTenantId;
             validateTenantId(savedTenantId);
+
+            // Initialize tenant path
+            const savedTenantPath = settings?.settings?.tenantPath || "";
+            document.getElementById("tenantPath").value = savedTenantPath;
+
+            // Initialize event name path
+            const savedEventNamePath = settings?.settings?.eventNamePath || "";
+            document.getElementById("eventNamePath").value = savedEventNamePath;
 
             // Initialize XDM fields
             currentXdmFields = settings?.settings?.xdmFields?.length
@@ -385,18 +614,21 @@
             const validationDiv = document.getElementById("tenantValidation");
 
             if (!value || value.trim() === "") {
-                tenantInput.classList.remove("valid");
+                tenantInput.classList.remove("valid", "warning");
+                tenantInput.classList.add("invalid");
                 validationDiv.className = "validation-message validation-error";
                 validationDiv.textContent = "Tenant ID is required";
                 validationDiv.style.display = "block";
                 return false;
             } else if (!value.startsWith("_")) {
-                tenantInput.classList.remove("valid");
-                validationDiv.className = "validation-message validation-error";
-                validationDiv.textContent = "Tenant ID should typically start with an underscore";
+                tenantInput.classList.remove("valid", "invalid");
+                tenantInput.classList.add("warning");
+                validationDiv.className = "validation-message validation-warning";
+                validationDiv.textContent = "Warning: Tenant ID usually starts with an underscore (e.g., _yourcompany), but this is not required.";
                 validationDiv.style.display = "block";
-                return false;
+                return true;
             } else {
+                tenantInput.classList.remove("invalid", "warning");
                 tenantInput.classList.add("valid");
                 validationDiv.className = "validation-message validation-success";
                 validationDiv.textContent = "Valid tenant ID format";
@@ -405,20 +637,97 @@
             }
         }
 
-        // Event listeners
+        // Add real-time validation for Tenant ID input
         document.getElementById("tenantId").addEventListener("input", (e) => {
-            tenantId = e.target.value.trim();
-            validateTenantId(tenantId);
+            validateTenantId(e.target.value);
+        });
+
+        // Path validation (matches backend)
+        function validatePath(path, pathType) {
+            if (!path) return { isValid: true };
+            const invalidChars = /[^a-zA-Z0-9._]/;
+            if (invalidChars.test(path)) {
+                return {
+                    isValid: false,
+                    error: `Invalid ${pathType} path: contains invalid characters. Only letters, numbers, dots, and underscores are allowed.`
+                };
+            }
+            if (path.startsWith('.') || path.endsWith('.')) {
+                return {
+                    isValid: false,
+                    error: `Invalid ${pathType} path: cannot start or end with a dot.`
+                };
+            }
+            if (path.includes('..') || path.split('.').some(segment => segment === '')) {
+                return {
+                    isValid: false,
+                    error: `Invalid ${pathType} path: cannot contain consecutive dots or empty segments.`
+                };
+            }
+            return { isValid: true };
+        }
+
+        // Show info icon (!) only when input is non-empty and invalid, and show tooltip on hover/focus
+        function updateInfoIcon(inputId, isInvalid) {
+            const icon = document.querySelector(`#${inputId}`).parentNode.querySelector('.info-icon');
+            if (!icon) return;
+            const value = document.getElementById(inputId).value.trim();
+            if (value && isInvalid) {
+                icon.style.display = 'flex';
+            } else {
+                icon.style.display = 'none';
+            }
+        }
+
+        document.getElementById("tenantPath").addEventListener("input", (e) => {
+            tenantPath = e.target.value.trim();
+            const result = validatePath(tenantPath, "tenant");
+            updateInfoIcon("tenantPath", !result.isValid);
+        });
+
+        document.getElementById("eventNamePath").addEventListener("input", (e) => {
+            eventNamePath = e.target.value.trim();
+            const result = validatePath(eventNamePath, "event name");
+            updateInfoIcon("eventNamePath", !result.isValid);
+        });
+
+        // On load, hide info icons if empty or valid
+        updateInfoIcon("tenantPath", false);
+        updateInfoIcon("eventNamePath", false);
+
+        // JS for clear buttons and tooltips
+        document.getElementById('tenantPath').addEventListener('input', function (e) {
+            document.getElementById('clearTenantPath').style.display = e.target.value ? 'flex' : 'none';
+        });
+        document.getElementById('clearTenantPath').addEventListener('click', function () {
+            document.getElementById('tenantPath').value = '';
+            document.getElementById('tenantPath').dispatchEvent(new Event('input'));
+        });
+        document.getElementById('eventNamePath').addEventListener('input', function (e) {
+            document.getElementById('clearEventNamePath').style.display = e.target.value ? 'flex' : 'none';
+        });
+        document.getElementById('clearEventNamePath').addEventListener('click', function () {
+            document.getElementById('eventNamePath').value = '';
+            document.getElementById('eventNamePath').dispatchEvent(new Event('input'));
         });
 
         window.extensionBridge.register({
             init: function (settings) {
                 generateFieldList(settings);
+                // Validate on load
+                const tenantPathVal = document.getElementById("tenantPath").value.trim();
+                const tenantPathResult = validatePath(tenantPathVal, "tenant");
+                updateInfoIcon("tenantPath", !tenantPathResult.isValid);
+                const eventNamePathVal = document.getElementById("eventNamePath").value.trim();
+                const eventNamePathResult = validatePath(eventNamePathVal, "event name");
+                updateInfoIcon("eventNamePath", !eventNamePathResult.isValid);
             },
             getSettings: function () {
                 updateFieldsFromUI();
                 return {
                     tenantId: document.getElementById("tenantId").value.trim(),
+                    tenantPath: document.getElementById("tenantPath").value.trim(),
+                    eventNamePath: document.getElementById("eventNamePath").value.trim(),
                     xdmFields: currentXdmFields
                 };
             },
@@ -426,7 +735,7 @@
                 const tenantIdValue = document.getElementById("tenantId").value.trim();
                 const isValidTenant = validateTenantId(tenantIdValue);
                 const hasFields = currentXdmFields.length > 0;
-
+                // Always return true for path fields, just show warnings
                 return isValidTenant && hasFields;
             }
         });
